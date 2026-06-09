@@ -6,10 +6,11 @@
 <title>Committee Vote</title>
 <style>
   :root{
-    --ink:#182230;--paper:#FBFAF6;--panel:#FFFFFF;--rule:#E4E0D6;--muted:#6B6256;
-    --accent:#1F5C4D;--accent-soft:#E5EFEA;--gold:#B8862E;--gold-soft:#F6ECD6;--danger:#A23B2E;
+    --ink:#13294B;--paper:#F2EDE2;--panel:#FFFFFF;--rule:#E2D9C7;--muted:#6E6656;
+    --accent:#13294B;--accent-soft:#E7EBF1;--gold:#B0892C;--gold-soft:#F6ECCF;--danger:#9A3324;
     --mono:ui-monospace,"SF Mono",Menlo,Consolas,"Roboto Mono",monospace;
     --sans:system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    --serif:Georgia,"Times New Roman",serif;
   }
   *{box-sizing:border-box}
   html,body{margin:0;padding:0}
@@ -17,8 +18,8 @@
   header{display:flex;align-items:center;gap:16px;flex-wrap:wrap;padding:14px 20px;border-bottom:2px solid var(--ink);background:var(--paper);position:sticky;top:0;z-index:20}
   .brand{display:flex;flex-direction:column;line-height:1.05}
   .brand .eyebrow{font-size:10px;letter-spacing:.22em;text-transform:uppercase;color:var(--muted);font-weight:700}
-  .brand h1{font-size:20px;margin:2px 0 0;font-weight:800;letter-spacing:-.01em;display:flex;align-items:center}
-  .brand .ver{font-size:11px;font-weight:700;color:var(--gold);font-family:var(--mono);margin-left:9px;border:1px solid var(--gold);border-radius:10px;padding:1px 7px}
+  .brand h1{font-size:21px;margin:2px 0 0;font-weight:700;letter-spacing:0;display:flex;align-items:center;font-family:var(--serif)}
+  .brand .ver{font-size:11px;font-weight:700;color:var(--gold);font-family:var(--mono);margin-left:9px;border:1px solid var(--gold);border-radius:3px;padding:1px 7px}
   nav{display:flex;gap:4px;margin-left:auto;flex-wrap:wrap;align-items:center}
   nav>button{font-family:var(--sans);font-size:13px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;border:1px solid var(--rule);background:var(--panel);color:var(--muted);padding:9px 14px;border-radius:2px;cursor:pointer}
   nav>button.active{background:var(--ink);color:#fff;border-color:var(--ink)}
@@ -31,28 +32,28 @@
   .menu-pop hr{border:none;border-top:1px solid var(--rule);margin:4px 2px}
   main{max-width:1320px;margin:0 auto;padding:18px 20px}
   .section-label{font-size:10px;letter-spacing:.22em;text-transform:uppercase;color:var(--muted);font-weight:700;margin:0 0 10px}
-  .voterbar{border:1px solid var(--rule);border-radius:4px;background:var(--panel);padding:12px 14px;margin-bottom:14px}
+  .voterbar{border:1px solid var(--rule);border-radius:2px;background:var(--panel);padding:12px 14px;margin-bottom:14px}
   .voterbar .hd{display:flex;align-items:baseline;gap:10px;margin-bottom:10px}
   .voterbar .hd .lab{font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);font-weight:700}
   .voterbar .hd .who{font-weight:800;font-size:15px}
   .voterbar .hd .who .none{color:var(--danger)}
   .vbtns{display:flex;flex-wrap:wrap;gap:6px}
-  .vbtn{font-family:var(--sans);font-size:13px;font-weight:700;border:1px solid var(--rule);background:var(--panel);color:var(--ink);padding:8px 12px;border-radius:3px;cursor:pointer;display:flex;align-items:center;gap:7px}
-  .vbtn.on{background:var(--gold);border-color:var(--gold);color:#fff}
+  .vbtn{font-family:var(--sans);font-size:13px;font-weight:700;border:1px solid var(--rule);background:var(--panel);color:var(--ink);padding:8px 12px;border-radius:2px;cursor:pointer;display:flex;align-items:center;gap:7px}
+  .vbtn.on{background:var(--ink);border-color:var(--ink);color:#fff}
   .vbtn .vcount{font-family:var(--mono);font-size:11px;background:rgba(24,34,48,.08);border-radius:10px;padding:1px 7px}
   .vbtn.on .vcount{background:rgba(255,255,255,.25)}
   .help{font-size:12px;color:var(--muted);margin:10px 0 0}
   /* hidden columns bar */
   .hiddenbar{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-bottom:10px}
   .hb-label{font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.1em;font-size:10px}
-  .hb-pill{font-size:12px;font-weight:700;border:1px dashed var(--rule);background:var(--panel);color:var(--accent);border-radius:14px;padding:5px 11px;cursor:pointer}
+  .hb-pill{font-size:12px;font-weight:700;border:1px dashed var(--rule);background:var(--panel);color:var(--accent);border-radius:3px;padding:5px 11px;cursor:pointer}
   .hb-pill:hover{border-style:solid;background:var(--accent-soft)}
   /* results tools + tallies */
   .results-tools{display:flex;flex-wrap:wrap;gap:14px;align-items:center;margin-bottom:12px}
   .topx-l{font-weight:700;font-size:14px;display:flex;align-items:center;gap:6px}
   .topx-l select{font-family:var(--sans);font-size:14px;padding:6px 8px;border:1px solid var(--rule);border-radius:3px;background:var(--panel);font-weight:700;color:var(--ink)}
   .tally-wrap{display:flex;flex-wrap:wrap;gap:12px;margin-bottom:14px}
-  .tally-card{border:1px solid var(--rule);border-radius:4px;background:var(--panel);min-width:210px;max-width:300px;overflow:hidden;align-self:flex-start}
+  .tally-card{border:1px solid var(--rule);border-radius:2px;background:var(--panel);min-width:210px;max-width:300px;overflow:hidden;align-self:flex-start}
   .tally-h{background:var(--gold-soft);padding:8px 12px;font-weight:800;font-size:13px;display:flex;align-items:center;gap:6px;border-bottom:1px solid var(--rule)}
   .tally-h .muted{color:var(--muted);font-weight:600;font-size:11px}
   .tally-x{margin-left:auto;border:none;background:none;color:var(--danger);font-weight:800;cursor:pointer;font-size:16px;line-height:1;padding:0 2px}
@@ -60,7 +61,7 @@
   .tally-row:last-child{border-bottom:none}
   .tally-row .n{font-family:var(--mono);font-weight:800}
   /* table */
-  .tablewrap{border:1px solid var(--rule);border-radius:4px;background:var(--panel);overflow:auto}
+  .tablewrap{border:1px solid var(--rule);border-radius:2px;background:var(--panel);overflow:auto}
   .tablewrap.vote{max-height:calc(100vh - 250px)}
   .tablewrap.results{max-height:calc(100vh - 230px)}
   table{width:100%;border-collapse:collapse;font-size:13px}
@@ -92,19 +93,19 @@
   td.codecell{font-family:var(--mono)}
   .tablewrap.results td.codecell{cursor:pointer;color:var(--accent);text-decoration:underline dotted}
   /* generic */
-  .btn{font-family:var(--sans);font-size:13px;font-weight:700;border:1px solid var(--ink);background:var(--ink);color:#fff;padding:9px 14px;border-radius:3px;cursor:pointer;white-space:nowrap}
+  .btn{font-family:var(--sans);font-size:13px;font-weight:700;border:1px solid var(--ink);background:var(--ink);color:#fff;padding:9px 14px;border-radius:2px;cursor:pointer;white-space:nowrap}
   .btn.ghost{background:var(--panel);color:var(--ink)}
   .btn.danger{background:var(--panel);color:var(--danger);border-color:var(--danger)}
   .btn.sm{padding:6px 10px;font-size:12px}
   input[type=text]{font-family:var(--sans);font-size:14px;padding:9px 10px;border:1px solid var(--rule);border-radius:3px;background:var(--panel);color:var(--ink)}
   input:focus{outline:2px solid var(--accent);outline-offset:-1px}
-  .card{border:1px solid var(--rule);border-radius:4px;background:var(--panel);padding:18px;margin-bottom:18px}
-  .card h2{font-size:15px;margin:0 0 6px}
+  .card{border:1px solid var(--rule);border-radius:2px;background:var(--panel);padding:18px;margin-bottom:18px}
+  .card h2{font-size:16px;margin:0 0 6px;font-family:var(--serif);font-weight:700}
   .member-edit{display:flex;align-items:center;gap:8px;margin-bottom:7px}
   .member-edit .ix{font-family:var(--mono);color:var(--muted);width:24px;text-align:right;font-size:13px}
   .member-edit input{flex:1}
   .pillrow{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
-  .pill{font-size:12px;font-weight:700;border:1px solid var(--rule);border-radius:14px;padding:5px 11px;cursor:pointer;background:var(--panel);color:var(--muted)}
+  .pill{font-size:12px;font-weight:700;border:1px solid var(--rule);border-radius:3px;padding:5px 11px;cursor:pointer;background:var(--panel);color:var(--muted)}
   .pill.on{background:var(--accent);border-color:var(--accent);color:#fff}
   .empty{padding:54px 18px;text-align:center;color:var(--muted)}
   .empty p{margin:0 0 16px;font-size:14px}
@@ -116,7 +117,7 @@
 </head>
 <body>
 <header>
-  <div class="brand"><span class="eyebrow">Scholarship Committee</span><h1>Committee Vote <span class="ver">v4.0</span></h1></div>
+  <div class="brand"><span class="eyebrow">Scholarship Committee</span><h1>Committee Vote <span class="ver">v5.0</span></h1></div>
   <nav>
     <button data-view="vote" class="active">Vote</button>
     <button data-view="results">Results</button>
@@ -140,7 +141,7 @@
 
 <script>
 "use strict";
-const VERSION="4.0";
+const VERSION="5.0";
 const KEY="committeeVote.v2";
 let nextId=1;
 const uid=p=>p+"_"+(nextId++)+"_"+Math.random().toString(36).slice(2,6);
@@ -212,7 +213,7 @@ function sortedApps(){
     return String(av).localeCompare(String(bv))*mul;
   });
 }
-function topXApps(){return state.apps.slice().sort((a,b)=>b.votes.length-a.votes.length||labelOf(a).localeCompare(labelOf(b))).slice(0,state.topX);}
+function topXApps(){return state.apps.filter(a=>a.votes.length>0).sort((a,b)=>b.votes.length-a.votes.length||labelOf(a).localeCompare(labelOf(b))).slice(0,state.topX);}
 
 /* ---------- CSV ---------- */
 function parseCSV(text){
@@ -339,7 +340,8 @@ function renderTallies(){
   return state.tallies.map(col=>{
     const counts={};
     top.forEach(a=>{const v=String(a.data[col]==null?"":a.data[col]).trim()||"(blank)";counts[v]=(counts[v]||0)+1;});
-    const rows=Object.entries(counts).sort((x,y)=>y[1]-x[1]||x[0].localeCompare(y[0])).map(([v,n])=>`<div class="tally-row"><span>${esc(v)}</span><span class="n">${n}</span></div>`).join("");
+    const entries=Object.entries(counts).sort((x,y)=>y[1]-x[1]||x[0].localeCompare(y[0]));
+    const rows=entries.length?entries.map(([v,n])=>`<div class="tally-row"><span>${esc(v)}</span><span class="n">${n}</span></div>`).join(""):`<div class="tally-row"><span class="muted">No votes yet</span></div>`;
     return `<div class="tally-card"><div class="tally-h">${esc(dn(col))} <span class="muted">· top ${state.topX}</span><button class="tally-x" data-untally="${esc(col)}" title="Remove tally">&times;</button></div>${rows}</div>`;
   }).join("");
 }
