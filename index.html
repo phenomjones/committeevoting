@@ -17,22 +17,20 @@
   header{display:flex;align-items:center;gap:16px;flex-wrap:wrap;padding:14px 20px;border-bottom:2px solid var(--ink);background:var(--paper);position:sticky;top:0;z-index:20}
   .brand{display:flex;flex-direction:column;line-height:1.05}
   .brand .eyebrow{font-size:10px;letter-spacing:.22em;text-transform:uppercase;color:var(--muted);font-weight:700}
-  .brand h1{font-size:20px;margin:2px 0 0;font-weight:800;letter-spacing:-.01em}
+  .brand h1{font-size:20px;margin:2px 0 0;font-weight:800;letter-spacing:-.01em;display:flex;align-items:center}
+  .brand .ver{font-size:11px;font-weight:700;color:var(--gold);font-family:var(--mono);margin-left:9px;border:1px solid var(--gold);border-radius:10px;padding:1px 7px}
   nav{display:flex;gap:4px;margin-left:auto;flex-wrap:wrap;align-items:center}
   nav>button{font-family:var(--sans);font-size:13px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;border:1px solid var(--rule);background:var(--panel);color:var(--muted);padding:9px 14px;border-radius:2px;cursor:pointer}
   nav>button.active{background:var(--ink);color:#fff;border-color:var(--ink)}
   .menu{position:relative}
   .menu>button{font-family:var(--sans);font-size:13px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;border:1px solid var(--rule);background:var(--panel);color:var(--muted);padding:9px 14px;border-radius:2px;cursor:pointer}
-  .menu-pop{position:absolute;right:0;top:calc(100% + 6px);background:var(--panel);border:1px solid var(--rule);border-radius:4px;box-shadow:0 8px 24px rgba(24,34,48,.14);min-width:230px;max-height:70vh;overflow:auto;padding:6px;display:none;z-index:30}
+  .menu-pop{position:absolute;right:0;top:calc(100% + 6px);background:var(--panel);border:1px solid var(--rule);border-radius:4px;box-shadow:0 8px 24px rgba(24,34,48,.14);min-width:210px;padding:6px;display:none;z-index:30}
   .menu-pop.open{display:block}
   .menu-pop>button{display:block;width:100%;text-align:left;border:none;background:none;padding:9px 10px;border-radius:3px;font-size:13px;color:var(--ink);cursor:pointer;font-weight:600}
   .menu-pop>button:hover{background:var(--accent-soft)}
-  .menu-pop label.col{display:flex;align-items:center;gap:8px;padding:6px 10px;font-size:13px;font-weight:600;cursor:pointer}
-  .menu-pop .pop-note{padding:8px 10px;font-size:12px;color:var(--muted)}
   .menu-pop hr{border:none;border-top:1px solid var(--rule);margin:4px 2px}
-  main{max-width:1280px;margin:0 auto;padding:18px 20px}
+  main{max-width:1320px;margin:0 auto;padding:18px 20px}
   .section-label{font-size:10px;letter-spacing:.22em;text-transform:uppercase;color:var(--muted);font-weight:700;margin:0 0 10px}
-  /* voter bar */
   .voterbar{border:1px solid var(--rule);border-radius:4px;background:var(--panel);padding:12px 14px;margin-bottom:14px}
   .voterbar .hd{display:flex;align-items:baseline;gap:10px;margin-bottom:10px}
   .voterbar .hd .lab{font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);font-weight:700}
@@ -44,32 +42,60 @@
   .vbtn .vcount{font-family:var(--mono);font-size:11px;background:rgba(24,34,48,.08);border-radius:10px;padding:1px 7px}
   .vbtn.on .vcount{background:rgba(255,255,255,.25)}
   .help{font-size:12px;color:var(--muted);margin:10px 0 0}
-  /* table + own scroll region (fixes floating header) */
+  /* hidden columns bar */
+  .hiddenbar{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-bottom:10px}
+  .hb-label{font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.1em;font-size:10px}
+  .hb-pill{font-size:12px;font-weight:700;border:1px dashed var(--rule);background:var(--panel);color:var(--accent);border-radius:14px;padding:5px 11px;cursor:pointer}
+  .hb-pill:hover{border-style:solid;background:var(--accent-soft)}
+  /* results tools + tallies */
+  .results-tools{display:flex;flex-wrap:wrap;gap:14px;align-items:center;margin-bottom:12px}
+  .topx-l{font-weight:700;font-size:14px;display:flex;align-items:center;gap:6px}
+  .topx-l select{font-family:var(--sans);font-size:14px;padding:6px 8px;border:1px solid var(--rule);border-radius:3px;background:var(--panel);font-weight:700;color:var(--ink)}
+  .tally-wrap{display:flex;flex-wrap:wrap;gap:12px;margin-bottom:14px}
+  .tally-card{border:1px solid var(--rule);border-radius:4px;background:var(--panel);min-width:210px;max-width:300px;overflow:hidden;align-self:flex-start}
+  .tally-h{background:var(--gold-soft);padding:8px 12px;font-weight:800;font-size:13px;display:flex;align-items:center;gap:6px;border-bottom:1px solid var(--rule)}
+  .tally-h .muted{color:var(--muted);font-weight:600;font-size:11px}
+  .tally-x{margin-left:auto;border:none;background:none;color:var(--danger);font-weight:800;cursor:pointer;font-size:16px;line-height:1;padding:0 2px}
+  .tally-row{display:flex;justify-content:space-between;gap:14px;padding:6px 12px;font-size:13px;border-bottom:1px solid var(--rule)}
+  .tally-row:last-child{border-bottom:none}
+  .tally-row .n{font-family:var(--mono);font-weight:800}
+  /* table */
   .tablewrap{border:1px solid var(--rule);border-radius:4px;background:var(--panel);overflow:auto}
   .tablewrap.vote{max-height:calc(100vh - 250px)}
-  .tablewrap.results{max-height:calc(100vh - 150px)}
+  .tablewrap.results{max-height:calc(100vh - 230px)}
   table{width:100%;border-collapse:collapse;font-size:13px}
-  th,td{padding:10px 12px;text-align:left;border-bottom:1px solid var(--rule);white-space:nowrap}
-  thead th{background:var(--ink);color:#fff;font-size:10px;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;user-select:none;position:sticky;top:0;z-index:2}
-  thead th .arrow{opacity:.55;margin-left:5px;font-size:10px}
-  thead th.votes,thead th.chk{text-align:center}
+  th,td{padding:9px 12px;text-align:left;border-bottom:1px solid var(--rule);white-space:nowrap}
+  thead th{background:var(--ink);color:#fff;position:sticky;top:0;z-index:2;vertical-align:bottom}
+  .hctls{display:flex;gap:3px;margin-bottom:6px}
+  .hctl{font-family:var(--mono);font-size:10px;line-height:1;border:1px solid rgba(255,255,255,.3);background:rgba(255,255,255,.08);color:#fff;border-radius:2px;padding:3px 5px;cursor:pointer}
+  .hctl:hover{background:rgba(255,255,255,.22)}
+  .hctl:disabled{opacity:.3;cursor:default}
+  .hctl.on{background:var(--gold);border-color:var(--gold)}
+  .hname{cursor:pointer;display:inline-flex;align-items:center;gap:5px;font-size:10px;letter-spacing:.1em;text-transform:uppercase;font-weight:700}
+  .hname:hover{color:var(--gold-soft)}
+  .tally-mark{opacity:.45;font-size:12px}
+  .tally-mark.on{opacity:1;color:var(--gold)}
+  thead th input{font-family:var(--sans);font-size:12px;padding:4px 6px;border-radius:2px;border:none;width:130px;text-transform:none;letter-spacing:0}
+  th.votes .hname,th.chk{justify-content:center}
+  th.votes,td.votes{text-align:center}
+  td.votes{font-family:var(--mono);font-weight:800;font-size:15px}
+  th.chk{font-size:10px;letter-spacing:.1em;text-transform:uppercase;font-weight:700;text-align:center}
+  td.chk{text-align:center;font-size:16px;color:var(--accent);width:46px}
+  th.approvers-h{font-size:10px;letter-spacing:.1em;text-transform:uppercase;font-weight:700}
   tbody tr.clickable{cursor:pointer}
   tbody tr.clickable:hover{background:var(--accent-soft)}
   tbody tr.approved{background:var(--accent-soft)}
   tbody tr.approved:hover{background:#d8e8e1}
-  td.votes{font-family:var(--mono);font-weight:800;text-align:center;font-size:15px}
-  td.chk{text-align:center;font-size:16px;color:var(--accent);width:46px}
-  tbody tr.leader td:first-child{font-weight:800}
-  tbody tr.leader td:first-child::before{content:"\2605  ";color:var(--gold)}
+  tbody tr.leader{background:var(--gold-soft)}
+  tbody tr.leader td.votes::before{content:"\2605 ";color:var(--gold)}
   td.approvers{color:var(--muted);font-size:12px;white-space:normal;min-width:160px}
-  td.first{font-weight:700}
+  td.codecell{font-family:var(--mono)}
+  .tablewrap.results td.codecell{cursor:pointer;color:var(--accent);text-decoration:underline dotted}
   /* generic */
   .btn{font-family:var(--sans);font-size:13px;font-weight:700;border:1px solid var(--ink);background:var(--ink);color:#fff;padding:9px 14px;border-radius:3px;cursor:pointer;white-space:nowrap}
   .btn.ghost{background:var(--panel);color:var(--ink)}
   .btn.danger{background:var(--panel);color:var(--danger);border-color:var(--danger)}
   .btn.sm{padding:6px 10px;font-size:12px}
-  .btn.icon{padding:5px 9px;font-family:var(--mono);font-weight:700;background:var(--panel);color:var(--ink);border-color:var(--rule)}
-  .btn.icon:disabled{opacity:.3;cursor:default}
   input[type=text]{font-family:var(--sans);font-size:14px;padding:9px 10px;border:1px solid var(--rule);border-radius:3px;background:var(--panel);color:var(--ink)}
   input:focus{outline:2px solid var(--accent);outline-offset:-1px}
   .card{border:1px solid var(--rule);border-radius:4px;background:var(--panel);padding:18px;margin-bottom:18px}
@@ -77,29 +103,24 @@
   .member-edit{display:flex;align-items:center;gap:8px;margin-bottom:7px}
   .member-edit .ix{font-family:var(--mono);color:var(--muted);width:24px;text-align:right;font-size:13px}
   .member-edit input{flex:1}
-  .colrow{display:flex;align-items:center;gap:8px;margin-bottom:7px}
-  .colrow .ord{display:flex;gap:3px}
-  .colrow input{flex:1}
-  .colrow .orig{font-size:11px;color:var(--muted);font-family:var(--mono);min-width:120px;max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .pillrow{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+  .pill{font-size:12px;font-weight:700;border:1px solid var(--rule);border-radius:14px;padding:5px 11px;cursor:pointer;background:var(--panel);color:var(--muted)}
+  .pill.on{background:var(--accent);border-color:var(--accent);color:#fff}
   .empty{padding:54px 18px;text-align:center;color:var(--muted)}
   .empty p{margin:0 0 16px;font-size:14px}
   .toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--ink);color:#fff;padding:11px 18px;border-radius:4px;font-size:13px;font-weight:600;opacity:0;transition:.25s;z-index:50;pointer-events:none;max-width:90vw}
   .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
   .toast.warn{background:var(--danger)}
-  .pillrow{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
-  .pill{font-size:12px;font-weight:700;border:1px solid var(--rule);border-radius:14px;padding:5px 11px;cursor:pointer;background:var(--panel);color:var(--muted)}
-  .pill.on{background:var(--accent);border-color:var(--accent);color:#fff}
-  @media print{header,nav,.voterbar,.menu{display:none}.tablewrap{max-height:none;overflow:visible}}
+  @media print{header,nav,.voterbar,.menu,.hiddenbar,.results-tools{display:none}.tablewrap{max-height:none;overflow:visible}}
 </style>
 </head>
 <body>
 <header>
-  <div class="brand"><span class="eyebrow">Scholarship Committee</span><h1>Committee Vote</h1></div>
+  <div class="brand"><span class="eyebrow">Scholarship Committee</span><h1>Committee Vote <span class="ver">v4.0</span></h1></div>
   <nav>
     <button data-view="vote" class="active">Vote</button>
     <button data-view="results">Results</button>
     <button data-view="setup">Setup</button>
-    <div class="menu"><button id="colBtn">Fields &#9662;</button><div class="menu-pop" id="colPop"></div></div>
     <div class="menu"><button id="menuBtn">Data &#9662;</button>
       <div class="menu-pop" id="menuPop">
         <button id="exCsv">Export results (CSV)</button>
@@ -119,67 +140,65 @@
 
 <script>
 "use strict";
-
+const VERSION="4.0";
 const KEY="committeeVote.v2";
 let nextId=1;
 const uid=p=>p+"_"+(nextId++)+"_"+Math.random().toString(36).slice(2,6);
 
 let state=blankState();
 let view="vote";
+let editingCol=null;   // column header currently being renamed
 
 function blankState(){
   return {
     members:Array.from({length:10},(_,i)=>({id:uid("m"),name:"Member "+(i+1)})),
-    columns:[],          // original CSV headers (data keys)
-    colOrder:[],         // display order of headers
-    colNames:{},         // {originalHeader: displayName}
-    labelCols:[],        // headers used for un-vote confirm + export label
-    idCol:null,
-    visible:{vote:[],results:[]},  // per-view visible headers
-    apps:[],             // {id, data:{}, votes:[memberId,...]}
-    activeVoter:null,
-    sort:{col:"__votes",dir:"desc"}
+    columns:[],colOrder:[],colNames:{},labelCols:[],idCol:null,codeCol:null,
+    visible:{vote:[],results:[]},
+    apps:[],activeVoter:null,
+    sort:{col:"__votes",dir:"desc"},
+    topX:10,tallies:[],codeExpanded:false
   };
 }
 
-/* ---------- normalize (also upgrades older saved state) ---------- */
+/* ---------- normalize / upgrade ---------- */
 function normalize(s){
   if(!Array.isArray(s.columns))s.columns=[];
   if(!Array.isArray(s.labelCols))s.labelCols=[];
   if(typeof s.colNames!=="object"||!s.colNames)s.colNames={};
-  // order
   let order=Array.isArray(s.colOrder)?s.colOrder.filter(c=>s.columns.includes(c)):[];
   s.columns.forEach(c=>{if(!order.includes(c))order.push(c);});
   s.colOrder=order;
-  // per-view visibility (default: all columns visible)
-  if(!s.visible||Array.isArray(s.visible)||!s.visible.vote){
-    s.visible={vote:s.columns.slice(),results:s.columns.slice()};
-  }else{
-    s.visible.vote=(s.visible.vote||s.columns).filter(c=>s.columns.includes(c));
-    s.visible.results=(s.visible.results||s.columns).filter(c=>s.columns.includes(c));
-    if(!s.visible.vote.length)s.visible.vote=s.columns.slice();
-    if(!s.visible.results.length)s.visible.results=s.columns.slice();
-  }
+  if(!s.visible||Array.isArray(s.visible)||!s.visible.vote){s.visible={vote:s.columns.slice(),results:s.columns.slice()};}
+  else{s.visible.vote=(s.visible.vote||s.columns).filter(c=>s.columns.includes(c));s.visible.results=(s.visible.results||s.columns).filter(c=>s.columns.includes(c));if(!s.visible.vote.length)s.visible.vote=s.columns.slice();if(!s.visible.results.length)s.visible.results=s.columns.slice();}
   delete s.visibleCols;
   if(!s.sort)s.sort={col:"__votes",dir:"desc"};
+  if(typeof s.topX!=="number"||s.topX<10||s.topX>20)s.topX=10;
+  if(!Array.isArray(s.tallies))s.tallies=[];
+  s.tallies=s.tallies.filter(c=>s.columns.includes(c));
+  if(typeof s.codeExpanded!=="boolean")s.codeExpanded=false;
+  if(s.codeCol===undefined||(s.codeCol&&!s.columns.includes(s.codeCol)))s.codeCol=null;
+  if(!s.codeCol)s.codeCol=detectCodeCol(s.columns,s.idCol);
   if(!Array.isArray(s.members)||!s.members.length)s.members=blankState().members;
   if(!Array.isArray(s.apps))s.apps=[];
   return s;
 }
+function detectCodeCol(headers,idCol){return headers.find(h=>/code/i.test(h))||idCol||headers.find(h=>/^id$/i.test(h))||null;}
 
 /* ---------- persistence ---------- */
-function load(){try{const raw=localStorage.getItem(KEY);if(raw){const d=JSON.parse(raw);if(d&&d.members&&d.apps){state=normalize(d);}}}catch(e){}}
+function load(){try{const raw=localStorage.getItem(KEY);if(raw){const d=JSON.parse(raw);if(d&&d.members&&d.apps)state=normalize(d);}}catch(e){}}
 let saveWarned=false;
 function save(){try{localStorage.setItem(KEY,JSON.stringify(state));}catch(e){if(!saveWarned){toast("Autosave unavailable here — use Download backup to keep votes.",true);saveWarned=true;}}}
 
 /* ---------- helpers ---------- */
-function dn(h){return state.colNames[h]||h;}                 // display name
+function dn(h){return state.colNames[h]||h;}
 function viewCols(v){return state.colOrder.filter(c=>state.visible[v].includes(c));}
 function memberName(id){const m=state.members.find(x=>x.id===id);return m?m.name:"?";}
 function activeName(){return state.activeVoter?memberName(state.activeVoter):null;}
 function labelOf(a){const p=state.labelCols.map(c=>a.data[c]).filter(v=>v!=null&&v!=="");return p.length?p.join(" \u00b7 "):"(unlabeled)";}
 function esc(s){return String(s==null?"":s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
 function toast(msg,warn){const t=document.getElementById("toast");t.textContent=msg;t.classList.toggle("warn",!!warn);t.classList.add("show");clearTimeout(toast._t);toast._t=setTimeout(()=>t.classList.remove("show"),2800);}
+function cellVal(a,col,v){let val=String(a.data[col]==null?"":a.data[col]);if(col===state.codeCol&&!(v==="results"&&state.codeExpanded))val=val.slice(-4);return val;}
+function isTruncated(a,col,v){return col===state.codeCol&&!(v==="results"&&state.codeExpanded)&&String(a.data[col]==null?"":a.data[col]).length>4;}
 
 function sortedApps(){
   const {col,dir}=state.sort,mul=dir==="asc"?1:-1;
@@ -193,8 +212,9 @@ function sortedApps(){
     return String(av).localeCompare(String(bv))*mul;
   });
 }
+function topXApps(){return state.apps.slice().sort((a,b)=>b.votes.length-a.votes.length||labelOf(a).localeCompare(labelOf(b))).slice(0,state.topX);}
 
-/* ---------- CSV parsing ---------- */
+/* ---------- CSV ---------- */
 function parseCSV(text){
   text=text.replace(/^\uFEFF/,"");
   const rows=[];let row=[],field="",inQ=false,i=0;
@@ -217,161 +237,159 @@ function importCSV(text){
   const courseCol=headers.find(h=>/course|major|program|study|degree|field/i.test(h));
   const schoolCol=headers.find(h=>/school|universit|college|institution/i.test(h));
   const labelCols=[courseCol,schoolCol].filter(Boolean);
-  state.columns=headers;
-  state.colOrder=headers.slice();
-  state.colNames={};
+  state.columns=headers;state.colOrder=headers.slice();state.colNames={};
   state.labelCols=labelCols.length?labelCols:[headers[0]];
   state.idCol=headers.find(h=>/^id$|applicant\s*id|app\s*id/i.test(h))||null;
+  state.codeCol=detectCodeCol(headers,state.idCol);
   state.visible={vote:headers.slice(),results:headers.slice()};
-  state.apps=rows.slice(1).map((r,ix)=>{
-    const data={};headers.forEach((h,j)=>data[h]=r[j]!=null?String(r[j]).trim():"");
-    const id=state.idCol&&data[state.idCol]?("csv_"+data[state.idCol]):uid("a"+ix);
-    return {id,data,votes:[]};
-  });
+  state.tallies=[];state.codeExpanded=false;
+  state.apps=rows.slice(1).map((r,ix)=>{const data={};headers.forEach((h,j)=>data[h]=r[j]!=null?String(r[j]).trim():"");const id=state.idCol&&data[state.idCol]?("csv_"+data[state.idCol]):uid("a"+ix);return {id,data,votes:[]};});
   state.sort={col:"__votes",dir:"desc"};
   save();toast(state.apps.length+" applications loaded.");view="vote";render();
 }
 
 /* ---------- vote actions (in-place; preserves dblclick) ---------- */
-function refreshRow(tr,a){
-  if(!tr)return;
-  const voted=state.activeVoter&&a.votes.includes(state.activeVoter);
-  tr.classList.toggle("approved",!!voted);
-  const v=tr.querySelector("td.votes");if(v)v.textContent=a.votes.length;
-  const c=tr.querySelector("td.chk");if(c)c.textContent=voted?"\u2713":"";
-}
+function refreshRow(tr,a){if(!tr)return;const voted=state.activeVoter&&a.votes.includes(state.activeVoter);tr.classList.toggle("approved",!!voted);const v=tr.querySelector("td.votes");if(v)v.textContent=a.votes.length;const c=tr.querySelector("td.chk");if(c)c.textContent=voted?"\u2713":"";}
 function refreshVoterCounts(){document.querySelectorAll("[data-voter]").forEach(b=>{const n=state.apps.filter(a=>a.votes.includes(b.dataset.voter)).length;const c=b.querySelector(".vcount");if(c)c.textContent=n;});}
-function addVote(id,tr){
-  if(!state.activeVoter){toast("Pick who's voting first.",true);return;}
-  const a=state.apps.find(x=>x.id===id);if(!a)return;
-  if(!a.votes.includes(state.activeVoter)){a.votes.push(state.activeVoter);save();refreshRow(tr,a);refreshVoterCounts();}
-}
-function removeVote(id,tr){
-  const a=state.apps.find(x=>x.id===id);if(!a)return;
-  if(!state.activeVoter){toast("Pick whose vote to remove first.",true);return;}
-  if(!a.votes.includes(state.activeVoter)){toast(activeName()+" hasn't voted for this one.");return;}
-  if(confirm("Remove "+activeName()+"'s vote for:\n\n"+labelOf(a)+"?")){a.votes=a.votes.filter(v=>v!==state.activeVoter);save();refreshRow(tr,a);refreshVoterCounts();}
-}
+function addVote(id,tr){if(!state.activeVoter){toast("Pick who's voting first.",true);return;}const a=state.apps.find(x=>x.id===id);if(!a)return;if(!a.votes.includes(state.activeVoter)){a.votes.push(state.activeVoter);save();refreshRow(tr,a);refreshVoterCounts();}}
+function removeVote(id,tr){const a=state.apps.find(x=>x.id===id);if(!a)return;if(!state.activeVoter){toast("Pick whose vote to remove first.",true);return;}if(!a.votes.includes(state.activeVoter)){toast(activeName()+" hasn't voted for this one.");return;}if(confirm("Remove "+activeName()+"'s vote for:\n\n"+labelOf(a)+"?")){a.votes=a.votes.filter(v=>v!==state.activeVoter);save();refreshRow(tr,a);refreshVoterCounts();}}
+
+/* ---------- column ops ---------- */
+function moveCol(v,col,dir){const vis=viewCols(v),vi=vis.indexOf(col),nj=vi+dir;if(vi<0||nj<0||nj>=vis.length)return;const nb=vis[nj],o=state.colOrder,i=o.indexOf(col),j=o.indexOf(nb);[o[i],o[j]]=[o[j],o[i]];save();render();}
+function hideCol(v,col){const arr=state.visible[v];if(arr.length<=1){toast("Keep at least one field visible.");return;}state.visible[v]=arr.filter(c=>c!==col);save();render();}
+function showCol(v,col){if(!state.visible[v].includes(col))state.visible[v].push(col);save();render();}
+function setSort(col){if(!col)return;if(state.sort.col===col)state.sort.dir=state.sort.dir==="asc"?"desc":"asc";else state.sort={col,dir:col==="__votes"?"desc":"asc"};save();render();}
+function toggleTally(col){const i=state.tallies.indexOf(col);if(i>=0)state.tallies.splice(i,1);else state.tallies.push(col);save();render();}
 
 /* ---------- rendering ---------- */
 const app=document.getElementById("app");
-function render(){
-  document.querySelectorAll("nav button[data-view]").forEach(b=>b.classList.toggle("active",b.dataset.view===view));
-  rebuildColMenu();
-  if(view==="vote")renderVote();else if(view==="results")renderResults();else renderSetup();
-}
+function render(){document.querySelectorAll("nav button[data-view]").forEach(b=>b.classList.toggle("active",b.dataset.view===view));if(view==="vote")renderVote();else if(view==="results")renderResults();else renderSetup();}
 function needCSV(){app.innerHTML=`<div class="empty"><p>No applications loaded yet.</p><button class="btn" id="goImport">Import a CSV</button></div>`;app.querySelector("#goImport").onclick=()=>document.getElementById("csvInput").click();}
-function sortArrow(col){return state.sort.col===col?`<span class="arrow">${state.sort.dir==="asc"?"\u25B2":"\u25BC"}</span>`:"";}
+function sortArrow(col){return state.sort.col===col?`<span>${state.sort.dir==="asc"?"\u25B2":"\u25BC"}</span>`:"";}
+function tallyMark(col){return `<span class="tally-mark ${state.tallies.includes(col)?'on':''}">&#931;</span>`;}
 
-function headerCells(v){
+function buildHead(v){
   const cols=viewCols(v);
-  const cells=cols.map((c,i)=>`<th class="${i===0?'first':''}" data-sort="${esc(c)}">${esc(dn(c))}${sortArrow(c)}</th>`);
-  if(v==="vote")cells.push(`<th class="chk" data-nosort>Voted</th>`);
-  cells.push(`<th class="votes" data-sort="__votes">Votes${sortArrow("__votes")}</th>`);
-  if(v==="results")cells.push(`<th data-nosort>Approved by</th>`);
-  return cells.join("");
+  let cells=`<th class="votes"><div class="hname" data-sortvotes>Votes ${sortArrow("__votes")}</div></th>`;
+  if(v==="vote")cells+=`<th class="chk">Voted</th>`;
+  cols.forEach((c,i)=>{
+    const editing=editingCol===c;
+    const sortBtn=v==="results"?`<button class="hctl ${state.sort.col===c?'on':''}" data-sortcol="${esc(c)}" title="Sort">${state.sort.col===c?(state.sort.dir==="asc"?"&#9650;":"&#9660;"):"&#8645;"}</button>`:"";
+    const name=editing?`<input type="text" id="renInput" value="${esc(dn(c))}">`:`<div class="hname" data-act="${esc(c)}" title="${v==="vote"?'Sort':'Tally'}">${esc(dn(c))} ${v==="vote"?sortArrow(c):tallyMark(c)}</div>`;
+    cells+=`<th data-col="${esc(c)}"><div class="hctls">
+        <button class="hctl" data-mvl="${esc(c)}" ${i===0?'disabled':''} title="Move left">&#9664;</button>
+        <button class="hctl" data-mvr="${esc(c)}" ${i===cols.length-1?'disabled':''} title="Move right">&#9654;</button>
+        <button class="hctl" data-ren="${esc(c)}" title="Rename">&#9998;</button>
+        <button class="hctl" data-hide="${esc(c)}" title="Hide">&#10005;</button>${sortBtn}
+      </div>${name}</th>`;
+  });
+  if(v==="results")cells+=`<th class="approvers-h">Approved by</th>`;
+  return cells;
 }
-function bodyRow(a,v,leaderVotes){
-  const cols=viewCols(v);
+function buildRow(a,v,lead){
   const voted=state.activeVoter&&a.votes.includes(state.activeVoter);
-  const leader=v==="results"&&a.votes.length===leaderVotes&&leaderVotes>0;
-  let tds=cols.map((c,i)=>`<td class="${i===0?'first':''}">${esc(a.data[c])}</td>`).join("");
+  const leader=v==="results"&&a.votes.length===lead&&lead>0;
+  let tds=`<td class="votes">${a.votes.length}</td>`;
   if(v==="vote")tds+=`<td class="chk">${voted?"\u2713":""}</td>`;
-  tds+=`<td class="votes">${a.votes.length}</td>`;
+  viewCols(v).forEach(c=>{const isCode=c===state.codeCol;const tr=isTruncated(a,c,v);tds+=`<td class="${isCode?'codecell':''}" ${v==="results"&&isCode?'data-codecell':''}>${tr?"\u2026":""}${esc(cellVal(a,c,v))}</td>`;});
   if(v==="results")tds+=`<td class="approvers">${a.votes.map(memberName).map(esc).join(", ")||"&mdash;"}</td>`;
   const cls=(v==="vote"?"clickable ":"")+(voted?"approved ":"")+(leader?"leader":"");
   return `<tr class="${cls.trim()}" data-app="${a.id}">${tds}</tr>`;
 }
 
+function wireCommon(v){
+  app.querySelectorAll("[data-mvl]").forEach(b=>b.onclick=e=>{e.stopPropagation();moveCol(v,b.dataset.mvl,-1);});
+  app.querySelectorAll("[data-mvr]").forEach(b=>b.onclick=e=>{e.stopPropagation();moveCol(v,b.dataset.mvr,1);});
+  app.querySelectorAll("[data-hide]").forEach(b=>b.onclick=e=>{e.stopPropagation();hideCol(v,b.dataset.hide);});
+  app.querySelectorAll("[data-ren]").forEach(b=>b.onclick=e=>{e.stopPropagation();editingCol=b.dataset.ren;render();});
+  app.querySelectorAll("[data-sortcol]").forEach(b=>b.onclick=e=>{e.stopPropagation();setSort(b.dataset.sortcol);});
+  app.querySelectorAll("[data-sortvotes]").forEach(b=>b.onclick=()=>setSort("__votes"));
+  app.querySelectorAll("[data-act]").forEach(el=>el.onclick=()=>{if(v==="vote")setSort(el.dataset.act);else toggleTally(el.dataset.act);});
+  app.querySelectorAll("[data-show]").forEach(b=>b.onclick=()=>showCol(v,b.dataset.show));
+  const inp=app.querySelector("#renInput");
+  if(inp){inp.focus();inp.select();
+    const commit=()=>{if(editingCol===null)return;const h=editingCol,val=inp.value.trim();if(val&&val!==h)state.colNames[h]=val;else delete state.colNames[h];editingCol=null;save();render();};
+    inp.onkeydown=e=>{if(e.key==="Enter"){e.preventDefault();commit();}else if(e.key==="Escape"){editingCol=null;render();}};
+    inp.onblur=commit;
+  }
+}
+function hiddenBar(v){const hidden=state.colOrder.filter(c=>!state.visible[v].includes(c));if(!hidden.length)return "";return `<div class="hiddenbar"><span class="hb-label">Hidden:</span>`+hidden.map(c=>`<button class="hb-pill" data-show="${esc(c)}">+ ${esc(dn(c))}</button>`).join("")+`</div>`;}
+
 function renderVote(){
-  if(state.apps.length===0){needCSV();return;}
+  if(!state.apps.length){needCSV();return;}
   const vbtns=state.members.map(m=>{const n=state.apps.filter(a=>a.votes.includes(m.id)).length;return `<button class="vbtn ${m.id===state.activeVoter?'on':''}" data-voter="${m.id}">${esc(m.name)}<span class="vcount">${n}</span></button>`;}).join("");
   const who=state.activeVoter?esc(activeName()):`<span class="none">none — pick a member</span>`;
-  const rows=sortedApps().map(a=>bodyRow(a,"vote")).join("");
+  const rows=sortedApps().map(a=>buildRow(a,"vote")).join("");
   app.innerHTML=`
-    <div class="voterbar">
-      <div class="hd"><span class="lab">Now voting</span><span class="who">${who}</span></div>
+    <div class="voterbar"><div class="hd"><span class="lab">Now voting</span><span class="who">${who}</span></div>
       <div class="vbtns">${vbtns}</div>
-      <p class="help">Pick the member calling out votes, then <b>single-click</b> each application they back. <b>Double-click</b> a row to remove that member's vote. Use <b>Fields &#9662;</b> to show/hide columns. Rows don't re-sort while you click — sort by tapping a header.</p>
-    </div>
-    <div class="tablewrap vote"><table><thead><tr>${headerCells("vote")}</tr></thead><tbody id="vbody">${rows}</tbody></table></div>`;
+      <p class="help">Pick the member calling out votes, then <b>single-click</b> each application they back. <b>Double-click</b> a row to remove that member's vote. On each column header: <b>&#9664;&#9654;</b> move, <b>&#9998;</b> rename, <b>&#10005;</b> hide; click the column name to sort.</p></div>
+    ${hiddenBar("vote")}
+    <div class="tablewrap vote"><table><thead><tr>${buildHead("vote")}</tr></thead><tbody id="vbody">${rows}</tbody></table></div>`;
   app.querySelectorAll("[data-voter]").forEach(b=>b.onclick=()=>{state.activeVoter=b.dataset.voter;save();render();});
-  app.querySelectorAll("thead th[data-sort]").forEach(th=>th.onclick=()=>setSort(th.dataset.sort));
+  wireCommon("vote");
   const tb=app.querySelector("#vbody");
   tb.addEventListener("click",e=>{const tr=e.target.closest("tr[data-app]");if(tr)addVote(tr.dataset.app,tr);});
   tb.addEventListener("dblclick",e=>{const tr=e.target.closest("tr[data-app]");if(tr)removeVote(tr.dataset.app,tr);});
 }
-function setSort(col){if(!col)return;if(state.sort.col===col)state.sort.dir=state.sort.dir==="asc"?"desc":"asc";else state.sort={col,dir:col==="__votes"?"desc":"asc"};save();render();}
+
+function renderTallies(){
+  if(!state.tallies.length)return "";
+  const top=topXApps();
+  return state.tallies.map(col=>{
+    const counts={};
+    top.forEach(a=>{const v=String(a.data[col]==null?"":a.data[col]).trim()||"(blank)";counts[v]=(counts[v]||0)+1;});
+    const rows=Object.entries(counts).sort((x,y)=>y[1]-x[1]||x[0].localeCompare(y[0])).map(([v,n])=>`<div class="tally-row"><span>${esc(v)}</span><span class="n">${n}</span></div>`).join("");
+    return `<div class="tally-card"><div class="tally-h">${esc(dn(col))} <span class="muted">· top ${state.topX}</span><button class="tally-x" data-untally="${esc(col)}" title="Remove tally">&times;</button></div>${rows}</div>`;
+  }).join("");
+}
 
 function renderResults(){
-  if(state.apps.length===0){needCSV();return;}
+  if(!state.apps.length){needCSV();return;}
   const lead=Math.max(0,...state.apps.map(a=>a.votes.length));
-  const rows=sortedApps().map(a=>bodyRow(a,"results",lead)).join("");
-  app.innerHTML=`<p class="section-label">${state.apps.length} applications &middot; ${state.members.length} members &middot; choose fields with <b>Fields &#9662;</b></p>
-    <div class="tablewrap results"><table><thead><tr>${headerCells("results")}</tr></thead><tbody>${rows}</tbody></table></div>`;
-  app.querySelectorAll("thead th[data-sort]").forEach(th=>th.onclick=()=>setSort(th.dataset.sort));
+  const rows=sortedApps().map(a=>buildRow(a,"results",lead)).join("");
+  let xo="";for(let i=10;i<=20;i++)xo+=`<option value="${i}" ${state.topX===i?'selected':''}>${i}</option>`;
+  app.innerHTML=`<p class="section-label">${state.apps.length} applications &middot; ${state.members.length} members</p>
+    <div class="results-tools"><label class="topx-l">Top <select id="topx">${xo}</select> vote-getters</label>
+      <span class="help" style="margin:0">Click a column name to add/remove its tally (counts values among the top X). Click a code value to reveal full codes. Use <b>&#8645;</b> on a header to sort.</span></div>
+    <div class="tally-wrap">${renderTallies()}</div>
+    ${hiddenBar("results")}
+    <div class="tablewrap results"><table><thead><tr>${buildHead("results")}</tr></thead><tbody id="rbody">${rows}</tbody></table></div>`;
+  wireCommon("results");
+  app.querySelector("#topx").onchange=e=>{state.topX=parseInt(e.target.value,10);save();render();};
+  app.querySelectorAll("[data-untally]").forEach(b=>b.onclick=()=>toggleTally(b.dataset.untally));
+  const rb=app.querySelector("#rbody");
+  rb.addEventListener("click",e=>{if(e.target.closest("[data-codecell]")){state.codeExpanded=!state.codeExpanded;save();render();}});
 }
 
 function renderSetup(){
   const meds=state.members.map((m,i)=>`<div class="member-edit"><span class="ix">${i+1}</span><input type="text" data-mname="${m.id}" value="${esc(m.name)}"><button class="btn danger sm" data-mdel="${m.id}">Remove</button></div>`).join("");
-  const cols=state.colOrder.map((c,i)=>`<div class="colrow">
-      <span class="ord"><button class="btn icon" data-up="${esc(c)}" ${i===0?'disabled':''}>&#9650;</button><button class="btn icon" data-down="${esc(c)}" ${i===state.colOrder.length-1?'disabled':''}>&#9660;</button></span>
-      <input type="text" data-cname="${esc(c)}" value="${esc(dn(c))}" placeholder="${esc(c)}">
-      <span class="orig">${esc(c)}</span>
-    </div>`).join("");
   const labelPills=state.columns.length?state.colOrder.map(c=>`<button class="pill ${state.labelCols.includes(c)?'on':''}" data-label="${esc(c)}">${esc(dn(c))}</button>`).join(""):`<span class="help">Load a CSV first.</span>`;
+  const codeName=state.codeCol?esc(dn(state.codeCol)):"none detected";
   app.innerHTML=`
-    <div class="card">
-      <h2>Applications (CSV)</h2>
-      ${state.apps.length?`<p class="help" style="margin:0 0 12px">${state.apps.length} applications loaded.</p>`:`<p class="help" style="margin:0 0 12px">No CSV loaded yet. The first row must be column headers.</p>`}
-      <button class="btn" id="importBtn">${state.apps.length?"Re-import / replace CSV":"Import CSV"}</button>
-    </div>
-    <div class="card">
-      <h2>Columns</h2>
-      <p class="help" style="margin:0 0 12px">Rename a column (display only — your CSV data is untouched) and reorder with the arrows. Order applies to the table and the export. Show/hide each column per view with <b>Fields &#9662;</b>.</p>
-      ${state.columns.length?cols:`<span class="help">Load a CSV first.</span>`}
-    </div>
-    <div class="card">
-      <h2>Row label</h2>
-      <p class="help" style="margin:0 0 4px">Column(s) used to name an application in the remove-vote prompt and the export (e.g. Course + School).</p>
-      <div class="pillrow">${labelPills}</div>
-    </div>
-    <div class="card">
-      <h2>Committee members</h2>${meds}
+    <div class="card"><h2>Applications (CSV)</h2>
+      ${state.apps.length?`<p class="help" style="margin:0 0 12px">${state.apps.length} applications loaded. Code column: <b>${codeName}</b> (shows last 4 digits).</p>`:`<p class="help" style="margin:0 0 12px">No CSV loaded yet. The first row must be column headers.</p>`}
+      <button class="btn" id="importBtn">${state.apps.length?"Re-import / replace CSV":"Import CSV"}</button></div>
+    <div class="card"><h2>Row label</h2>
+      <p class="help" style="margin:0 0 4px">Column(s) used to name an application in the remove-vote prompt and the export.</p>
+      <div class="pillrow">${labelPills}</div></div>
+    <div class="card"><h2>Committee members</h2>${meds}
       <button class="btn ghost sm" id="addMember" style="margin-top:8px">Add member</button>
-      <span class="help" style="margin-left:8px">${state.members.length} members</span>
-    </div>`;
+      <span class="help" style="margin-left:8px">${state.members.length} members</span></div>
+    <p class="help">Rename, reorder, and show/hide columns directly on the table headers (Vote and Results pages).</p>`;
   app.querySelector("#importBtn").onclick=()=>{if(state.apps.some(a=>a.votes.length)){if(!confirm("Re-importing replaces all applications and clears every vote. Continue?"))return;}document.getElementById("csvInput").click();};
-  app.querySelectorAll("[data-up]").forEach(b=>b.onclick=()=>moveCol(b.dataset.up,-1));
-  app.querySelectorAll("[data-down]").forEach(b=>b.onclick=()=>moveCol(b.dataset.down,1));
-  app.querySelectorAll("[data-cname]").forEach(inp=>inp.onchange=()=>{const h=inp.dataset.cname,v=inp.value.trim();if(v&&v!==h)state.colNames[h]=v;else delete state.colNames[h];save();render();});
   app.querySelectorAll("[data-label]").forEach(b=>b.onclick=()=>{const c=b.dataset.label,i=state.labelCols.indexOf(c);if(i>=0){if(state.labelCols.length>1)state.labelCols.splice(i,1);else{toast("Keep at least one label column.");return;}}else state.labelCols.push(c);save();render();});
   app.querySelectorAll("[data-mname]").forEach(inp=>inp.onchange=()=>{const m=state.members.find(x=>x.id===inp.dataset.mname);if(m){m.name=inp.value.trim()||m.name;save();}});
   app.querySelectorAll("[data-mdel]").forEach(b=>b.onclick=()=>{if(state.members.length<=1){toast("Keep at least one member.");return;}if(confirm("Remove this member? Their recorded votes will be discarded.")){const id=b.dataset.mdel;state.members=state.members.filter(m=>m.id!==id);state.apps.forEach(a=>a.votes=a.votes.filter(v=>v!==id));if(state.activeVoter===id)state.activeVoter=null;save();render();}});
   app.querySelector("#addMember").onclick=()=>{state.members.push({id:uid("m"),name:"Member "+(state.members.length+1)});save();render();};
 }
-function moveCol(h,dir){const i=state.colOrder.indexOf(h),j=i+dir;if(i<0||j<0||j>=state.colOrder.length)return;const o=state.colOrder;[o[i],o[j]]=[o[j],o[i]];save();render();}
 
-/* ---------- Fields menu (per active view) ---------- */
-function rebuildColMenu(){
-  const pop=document.getElementById("colPop");
-  if(!state.columns.length){pop.innerHTML=`<div class="pop-note">Load a CSV to choose fields.</div>`;return;}
-  if(view!=="vote"&&view!=="results"){pop.innerHTML=`<div class="pop-note">Switch to Vote or Results to choose visible fields.</div>`;return;}
-  const set=state.visible[view];
-  pop.innerHTML=`<div class="pop-note">Fields shown on <b>${view==="vote"?"Vote":"Results"}</b></div>`+
-    state.colOrder.map(c=>`<label class="col"><input type="checkbox" data-col="${esc(c)}" ${set.includes(c)?"checked":""}> ${esc(dn(c))}</label>`).join("");
-  pop.querySelectorAll("[data-col]").forEach(cb=>cb.onchange=()=>{
-    const c=cb.dataset.col,arr=state.visible[view];
-    if(cb.checked){if(!arr.includes(c))arr.push(c);}else{if(arr.length<=1){toast("Keep at least one field visible.");cb.checked=true;return;}state.visible[view]=arr.filter(x=>x!==c);}
-    save();render();
-  });
-}
-
-/* ---------- nav + menus ---------- */
-document.querySelectorAll("nav button[data-view]").forEach(b=>b.onclick=()=>{view=b.dataset.view;render();});
-function wireMenu(btnId,popId){const pop=document.getElementById(popId);document.getElementById(btnId).onclick=e=>{e.stopPropagation();document.querySelectorAll(".menu-pop").forEach(p=>{if(p!==pop)p.classList.remove("open");});pop.classList.toggle("open");};pop.onclick=e=>e.stopPropagation();}
-wireMenu("menuBtn","menuPop");wireMenu("colBtn","colPop");
-document.addEventListener("click",()=>document.querySelectorAll(".menu-pop").forEach(p=>p.classList.remove("open")));
+/* ---------- nav + data menu ---------- */
+document.querySelectorAll("nav button[data-view]").forEach(b=>b.onclick=()=>{editingCol=null;view=b.dataset.view;render();});
+const menuPop=document.getElementById("menuPop");
+document.getElementById("menuBtn").onclick=e=>{e.stopPropagation();menuPop.classList.toggle("open");};
+menuPop.onclick=e=>e.stopPropagation();
+document.addEventListener("click",()=>menuPop.classList.remove("open"));
 
 /* ---------- import / export ---------- */
 const csvInput=document.getElementById("csvInput"),jsonInput=document.getElementById("jsonInput");
@@ -381,17 +399,16 @@ function stamp(){return new Date().toISOString().slice(0,10);}
 document.getElementById("exCsv").onclick=()=>{
   if(!state.apps.length){toast("Nothing to export yet.",true);return;}
   const q=s=>`"${String(s==null?"":s).replace(/"/g,'""')}"`;
-  const header=["Rank","Application",...state.colOrder.map(dn),"Votes","Approved by"].map(q).join(",");
+  const header=["Rank","Votes","Application",...state.colOrder.map(dn),"Approved by"].map(q).join(",");
   const apps=state.apps.slice().sort((a,b)=>b.votes.length-a.votes.length||labelOf(a).localeCompare(labelOf(b)));
-  const lines=apps.map((a,i)=>[i+1,labelOf(a),...state.colOrder.map(c=>a.data[c]??""),a.votes.length,a.votes.map(memberName).join("; ")].map(q).join(","));
-  download(`committee-results-${stamp()}.csv`,[header,...lines].join("\r\n"),"text/csv");
-  document.getElementById("menuPop").classList.remove("open");
+  const lines=apps.map((a,i)=>[i+1,a.votes.length,labelOf(a),...state.colOrder.map(c=>a.data[c]??""),a.votes.map(memberName).join("; ")].map(q).join(","));
+  download(`committee-results-${stamp()}.csv`,[header,...lines].join("\r\n"),"text/csv");menuPop.classList.remove("open");
 };
-document.getElementById("exJson").onclick=()=>{download(`committee-vote-backup-${stamp()}.json`,JSON.stringify(state,null,2),"application/json");document.getElementById("menuPop").classList.remove("open");};
-document.getElementById("imJson").onclick=()=>{document.getElementById("menuPop").classList.remove("open");jsonInput.click();};
+document.getElementById("exJson").onclick=()=>{download(`committee-vote-backup-${stamp()}.json`,JSON.stringify(state,null,2),"application/json");menuPop.classList.remove("open");};
+document.getElementById("imJson").onclick=()=>{menuPop.classList.remove("open");jsonInput.click();};
 jsonInput.onchange=()=>{const f=jsonInput.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{try{const d=JSON.parse(r.result);if(!d.members||!d.apps)throw 0;state=normalize(d);save();render();toast("Backup restored.");}catch(e){toast("That file isn't a valid backup.",true);}jsonInput.value="";};r.readAsText(f);};
-document.getElementById("resetVotes").onclick=()=>{if(confirm("Clear every vote? Applications and members stay.")){state.apps.forEach(a=>a.votes=[]);save();render();toast("All votes cleared.");}document.getElementById("menuPop").classList.remove("open");};
-document.getElementById("resetAll").onclick=()=>{if(confirm("Erase everything — applications, members, and votes? Cannot be undone.")){state=blankState();save();render();toast("Reset to a blank slate.");}document.getElementById("menuPop").classList.remove("open");};
+document.getElementById("resetVotes").onclick=()=>{if(confirm("Clear every vote? Applications and members stay.")){state.apps.forEach(a=>a.votes=[]);save();render();toast("All votes cleared.");}menuPop.classList.remove("open");};
+document.getElementById("resetAll").onclick=()=>{if(confirm("Erase everything — applications, members, and votes? Cannot be undone.")){state=blankState();save();render();toast("Reset to a blank slate.");}menuPop.classList.remove("open");};
 
 /* ---------- go ---------- */
 load();render();
