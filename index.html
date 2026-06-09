@@ -148,10 +148,11 @@
 </head>
 <body>
 <header>
-  <div class="brand"><span class="eyebrow">Scholarship Committee</span><h1>Committee Vote <span class="ver">v7.0</span></h1></div>
+  <div class="brand"><span class="eyebrow">Scholarship Committee</span><h1>Committee Vote <span class="ver">v8.0</span></h1></div>
   <nav>
     <button data-view="vote" class="active">Vote</button>
     <button data-view="results">Results</button>
+    <button data-view="compare">Compare</button>
     <button data-view="setup">Setup</button>
     <div class="menu"><button id="menuBtn">Data &#9662;</button>
       <div class="menu-pop" id="menuPop">
@@ -172,7 +173,7 @@
 
 <script>
 "use strict";
-const VERSION="7.0";
+const VERSION="8.0";
 const KEY="committeeVote.v2";
 let nextId=1;
 const uid=p=>p+"_"+(nextId++)+"_"+Math.random().toString(36).slice(2,6);
@@ -182,6 +183,7 @@ let view="vote";
 let editingCol=null;   // column header currently being renamed
 let tallyMode={col:null,mode:null};            // {col, 'combine'|'tag'}
 let combineSel={col:null,parent:null,children:[]};
+let compareSel=[];                              // member ids selected on Compare tab
 
 function blankState(){
   return {
@@ -280,7 +282,7 @@ function importCSV(text){
   state.idCol=headers.find(h=>/^id$|applicant\s*id|app\s*id/i.test(h))||null;
   state.codeCol=detectCodeCol(headers,state.idCol);
   state.visible={vote:headers.slice(),results:headers.slice()};
-  state.tallies=[];state.codeExpanded=false;state.groups={};state.tags={};state.mlbEnabled={};
+  state.tallies=[];state.codeExpanded=false;state.groups={};state.tags={};state.mlbEnabled={};compareSel=[];
   state.apps=rows.slice(1).map((r,ix)=>{const data={};headers.forEach((h,j)=>data[h]=r[j]!=null?String(r[j]).trim():"");const id=state.idCol&&data[state.idCol]?("csv_"+data[state.idCol]):uid("a"+ix);return {id,data,votes:[]};});
   state.sort={col:"__votes",dir:"desc"};
   save();toast(state.apps.length+" applications loaded.");view="vote";render();
@@ -299,10 +301,11 @@ function showCol(v,col){if(!state.visible[v].includes(col))state.visible[v].push
 function setSort(col){if(!col)return;if(state.sort.col===col)state.sort.dir=state.sort.dir==="asc"?"desc":"asc";else state.sort={col,dir:col==="__votes"?"desc":"asc"};save();render();}
 function toggleTally(col){const i=state.tallies.indexOf(col);if(i>=0)state.tallies.splice(i,1);else state.tallies.push(col);save();render();}
 
+function alphaBlock(list){const col=state.sort.col;const key=col==="__votes"?(a=>labelOf(a)):(a=>String(a.data[col]==null?"":a.data[col]));return list.slice().sort((a,b)=>key(a).localeCompare(key(b)));}
 function toggleMark(id){const a=state.apps.find(x=>x.id===id);if(a){a.marked=!a.marked;save();render();}}
 /* ---------- rendering ---------- */
 const app=document.getElementById("app");
-function render(){document.querySelectorAll("nav button[data-view]").forEach(b=>b.classList.toggle("active",b.dataset.view===view));if(view==="vote")renderVote();else if(view==="results")renderResults();else renderSetup();}
+function render(){document.querySelectorAll("nav button[data-view]").forEach(b=>b.classList.toggle("active",b.dataset.view===view));if(view==="vote")renderVote();else if(view==="results")renderResults();else if(view==="compare")renderCompare();else renderSetup();}
 function needCSV(){app.innerHTML=`<div class="empty"><p>No applications loaded yet.</p><button class="btn" id="goImport">Import a CSV</button></div>`;app.querySelector("#goImport").onclick=()=>document.getElementById("csvInput").click();}
 function sortArrow(col){return state.sort.col===col?`<span>${state.sort.dir==="asc"?"\u25B2":"\u25BC"}</span>`:"";}
 function tallyMark(col){return `<span class="tally-mark ${state.tallies.includes(col)?'on':''}">&#931;</span>`;}
@@ -359,7 +362,8 @@ function renderVote(){
   const vbtns=state.members.map(m=>{const n=state.apps.filter(a=>a.votes.includes(m.id)).length;return `<button class="vbtn ${m.id===state.activeVoter?'on':''}" data-voter="${m.id}">${esc(m.name)}<span class="vcount">${n}</span></button>`;}).join("");
   const who=state.activeVoter?esc(activeName()):`<span class="none">none — pick a member</span>`;
   const base=sortedApps();
-  const rows=base.filter(a=>!a.marked).concat(base.filter(a=>a.marked)).map(a=>buildRow(a,"vote")).join("");
+  const marked=alphaBlock(state.apps.filter(a=>a.marked));
+  const rows=base.filter(a=>!a.marked).concat(marked).map(a=>buildRow(a,"vote")).join("");
   app.innerHTML=`
     <div class="voterbar"><div class="hd"><span class="lab">Now voting</span><span class="who">${who}</span></div>
       <div class="vbtns">${vbtns}</div>
@@ -450,6 +454,27 @@ function renderResults(){
   rb.addEventListener("click",e=>{if(e.target.closest("[data-codecell]")){state.codeExpanded=!state.codeExpanded;save();render();}});
 }
 
+function renderCompare(){
+  if(!state.apps.length){needCSV();return;}
+  const chips=state.members.map(m=>`<button class="vbtn ${compareSel.includes(m.id)?'on':''}" data-cmp="${m.id}">${esc(m.name)}</button>`).join("");
+  const sel=compareSel.filter(id=>state.members.some(m=>m.id===id));
+  let bodyHtml;
+  if(sel.length<2){
+    bodyHtml=`<div class="empty"><p>Select at least two members above to see the applications they approved in common.</p></div>`;
+  }else{
+    const names=sel.map(memberName).join(", ");
+    const common=state.apps.filter(a=>sel.every(id=>a.votes.includes(id))).sort((a,b)=>b.votes.length-a.votes.length||labelOf(a).localeCompare(labelOf(b)));
+    if(!common.length){
+      bodyHtml=`<p class="section-label">${sel.length} members selected &middot; ${esc(names)}</p><div class="empty"><p>No applications have been approved by all selected members yet.</p></div>`;
+    }else{
+      const rows=common.map(a=>`<tr class="${a.marked?'marked':''}"><td class="votes"><span class="vn">${a.votes.length}</span></td><td>${esc(labelOf(a))}</td><td class="approvers">${a.votes.map(memberName).map(esc).join(", ")}</td></tr>`).join("");
+      bodyHtml=`<p class="section-label">${common.length} application${common.length>1?'s':''} approved by all ${sel.length} selected &middot; ${esc(names)}</p>
+        <div class="tablewrap results"><table><thead><tr><th class="votes">Votes</th><th>Application</th><th>Approved by</th></tr></thead><tbody>${rows}</tbody></table></div>`;
+    }
+  }
+  app.innerHTML=`<div class="voterbar"><div class="hd"><span class="lab">Compare voters</span></div><div class="vbtns">${chips}</div><p class="help">Tap members to select two or more. The table shows the applications every selected member approved in common.</p></div>${bodyHtml}`;
+  app.querySelectorAll("[data-cmp]").forEach(b=>b.onclick=()=>{const id=b.dataset.cmp,i=compareSel.indexOf(id);if(i>=0)compareSel.splice(i,1);else compareSel.push(id);render();});
+}
 function renderSetup(){
   const meds=state.members.map((m,i)=>`<div class="member-edit"><span class="ix">${i+1}</span><input type="text" data-mname="${m.id}" value="${esc(m.name)}"><button class="btn danger sm" data-mdel="${m.id}">Remove</button></div>`).join("");
   const labelPills=state.columns.length?state.colOrder.map(c=>`<button class="pill ${state.labelCols.includes(c)?'on':''}" data-label="${esc(c)}">${esc(dn(c))}</button>`).join(""):`<span class="help">Load a CSV first.</span>`;
