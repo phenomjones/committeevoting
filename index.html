@@ -1,3 +1,4 @@
+<!-- Committee Vote — v9.0 -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -30,7 +31,7 @@
   .menu-pop>button{display:block;width:100%;text-align:left;border:none;background:none;padding:9px 10px;border-radius:3px;font-size:13px;color:var(--ink);cursor:pointer;font-weight:600}
   .menu-pop>button:hover{background:var(--accent-soft)}
   .menu-pop hr{border:none;border-top:1px solid var(--rule);margin:4px 2px}
-  main{max-width:1320px;margin:0 auto;padding:18px 20px}
+  main{max-width:none;margin:0;padding:18px 20px}
   .section-label{font-size:10px;letter-spacing:.22em;text-transform:uppercase;color:var(--muted);font-weight:700;margin:0 0 10px}
   .voterbar{border:1px solid var(--rule);border-radius:2px;background:var(--panel);padding:12px 14px;margin-bottom:14px}
   .voterbar .hd{display:flex;align-items:baseline;gap:10px;margin-bottom:10px}
@@ -143,12 +144,16 @@
   tbody tr.marked{background:#F6D9D4}
   tbody tr.marked:hover{background:#EFC6BF}
   tbody tr.marked td:first-child{box-shadow:inset 3px 0 0 var(--danger)}
+  .hctls{flex-wrap:wrap}
+  td{overflow:hidden;text-overflow:ellipsis}
+  .col-resizer{position:absolute;top:0;right:0;width:7px;height:100%;cursor:col-resize;user-select:none;touch-action:none;z-index:3}
+  .col-resizer:hover{background:rgba(255,255,255,.3)}
   @media print{header,nav,.voterbar,.menu,.hiddenbar,.results-tools{display:none}.tablewrap{max-height:none;overflow:visible}}
 </style>
 </head>
 <body>
 <header>
-  <div class="brand"><span class="eyebrow">Scholarship Committee</span><h1>Committee Vote <span class="ver">v8.0</span></h1></div>
+  <div class="brand"><span class="eyebrow">Scholarship Committee</span><h1>Committee Vote <span class="ver">v9.0</span></h1></div>
   <nav>
     <button data-view="vote" class="active">Vote</button>
     <button data-view="results">Results</button>
@@ -173,7 +178,7 @@
 
 <script>
 "use strict";
-const VERSION="8.0";
+const VERSION="9.0";
 const KEY="committeeVote.v2";
 let nextId=1;
 const uid=p=>p+"_"+(nextId++)+"_"+Math.random().toString(36).slice(2,6);
@@ -193,7 +198,7 @@ function blankState(){
     apps:[],activeVoter:null,
     sort:{col:"__votes",dir:"desc"},
     topX:10,tallies:[],codeExpanded:false,
-    groups:{},tags:{},mlbEnabled:{}
+    groups:{},tags:{},mlbEnabled:{},colWidths:{}
   };
 }
 
@@ -216,6 +221,7 @@ function normalize(s){
   if(typeof s.groups!=="object"||!s.groups)s.groups={};
   if(typeof s.tags!=="object"||!s.tags)s.tags={};
   if(typeof s.mlbEnabled!=="object"||!s.mlbEnabled)s.mlbEnabled={};
+  if(typeof s.colWidths!=="object"||!s.colWidths)s.colWidths={};
   if(s.codeCol===undefined||(s.codeCol&&!s.columns.includes(s.codeCol)))s.codeCol=null;
   if(!s.codeCol)s.codeCol=detectCodeCol(s.columns,s.idCol);
   if(!Array.isArray(s.members)||!s.members.length)s.members=blankState().members;
@@ -282,7 +288,7 @@ function importCSV(text){
   state.idCol=headers.find(h=>/^id$|applicant\s*id|app\s*id/i.test(h))||null;
   state.codeCol=detectCodeCol(headers,state.idCol);
   state.visible={vote:headers.slice(),results:headers.slice()};
-  state.tallies=[];state.codeExpanded=false;state.groups={};state.tags={};state.mlbEnabled={};compareSel=[];
+  state.tallies=[];state.codeExpanded=false;state.groups={};state.tags={};state.mlbEnabled={};state.colWidths={};compareSel=[];
   state.apps=rows.slice(1).map((r,ix)=>{const data={};headers.forEach((h,j)=>data[h]=r[j]!=null?String(r[j]).trim():"");const id=state.idCol&&data[state.idCol]?("csv_"+data[state.idCol]):uid("a"+ix);return {id,data,votes:[]};});
   state.sort={col:"__votes",dir:"desc"};
   save();toast(state.apps.length+" applications loaded.");view="vote";render();
@@ -292,7 +298,7 @@ function importCSV(text){
 function refreshRow(tr,a){if(!tr)return;const voted=state.activeVoter&&a.votes.includes(state.activeVoter);tr.classList.toggle("approved",!!voted);const v=tr.querySelector("td.votes .vn");if(v)v.textContent=a.votes.length;const c=tr.querySelector("td.chk");if(c)c.textContent=voted?"\u2713":"";}
 function refreshVoterCounts(){document.querySelectorAll("[data-voter]").forEach(b=>{const n=state.apps.filter(a=>a.votes.includes(b.dataset.voter)).length;const c=b.querySelector(".vcount");if(c)c.textContent=n;});}
 function addVote(id,tr){if(!state.activeVoter){toast("Pick who's voting first.",true);return;}const a=state.apps.find(x=>x.id===id);if(!a)return;if(!a.votes.includes(state.activeVoter)){a.votes.push(state.activeVoter);save();refreshRow(tr,a);refreshVoterCounts();}}
-function removeVote(id,tr){const a=state.apps.find(x=>x.id===id);if(!a)return;if(!state.activeVoter){toast("Pick whose vote to remove first.",true);return;}if(!a.votes.includes(state.activeVoter)){toast(activeName()+" hasn't voted for this one.");return;}if(confirm("Remove "+activeName()+"'s vote for:\n\n"+labelOf(a)+"?")){a.votes=a.votes.filter(v=>v!==state.activeVoter);save();refreshRow(tr,a);refreshVoterCounts();}}
+function removeVote(id,tr){const a=state.apps.find(x=>x.id===id);if(!a)return;if(!state.activeVoter){toast("Pick whose vote to remove first.",true);return;}if(!a.votes.includes(state.activeVoter)){toast(activeName()+" hasn't voted for this one.");return;}a.votes=a.votes.filter(v=>v!==state.activeVoter);save();refreshRow(tr,a);refreshVoterCounts();toast("Removed "+activeName()+"'s vote.");}
 
 /* ---------- column ops ---------- */
 function moveCol(v,col,dir){const vis=viewCols(v),vi=vis.indexOf(col),nj=vi+dir;if(vi<0||nj<0||nj>=vis.length)return;const nb=vis[nj],o=state.colOrder,i=o.indexOf(col),j=o.indexOf(nb);[o[i],o[j]]=[o[j],o[i]];save();render();}
@@ -357,6 +363,39 @@ function wireCommon(v){
 }
 function hiddenBar(v){const hidden=state.colOrder.filter(c=>!state.visible[v].includes(c));if(!hidden.length)return "";return `<div class="hiddenbar"><span class="hb-label">Hidden:</span>`+hidden.map(c=>`<button class="hb-pill" data-show="${esc(c)}">+ ${esc(dn(c))}</button>`).join("")+`</div>`;}
 
+function headerKeys(view){
+  if(view==="vote")return ["__votes","__chk",...viewCols("vote")].map(k=>"vote:"+k);
+  if(view==="results")return ["__votes",...viewCols("results"),"__approvers"].map(k=>"results:"+k);
+  if(view==="compare")return ["__votes","__app","__approvers"].map(k=>"compare:"+k);
+  return [];
+}
+function setupResizableTable(view){
+  const table=app.querySelector("table");if(!table)return;
+  const ths=[...table.querySelectorAll("thead th")];const keys=headerKeys(view);
+  if(!ths.length||ths.length!==keys.length)return;
+  let changed=false;
+  ths.forEach((th,i)=>{if(!(keys[i] in state.colWidths)){state.colWidths[keys[i]]=Math.round(th.getBoundingClientRect().width);changed=true;}});
+  if(changed)save();
+  table.style.tableLayout="fixed";
+  ths.forEach((th,i)=>{th.style.width=state.colWidths[keys[i]]+"px";});
+  ths.forEach((th,i)=>{
+    if(i===ths.length-1)return;
+    const rz=document.createElement("div");rz.className="col-resizer";rz.title="Drag to resize column";
+    rz.addEventListener("pointerdown",ev=>startResize(ev,view,i));
+    th.appendChild(rz);
+  });
+}
+function startResize(e,view,idx){
+  e.preventDefault();e.stopPropagation();
+  const table=app.querySelector("table");if(!table)return;
+  const ths=[...table.querySelectorAll("thead th")],keys=headerKeys(view),next=idx+1;
+  if(next>=ths.length)return;
+  const startX=e.clientX,wi=ths[idx].getBoundingClientRect().width,wn=ths[next].getBoundingClientRect().width,MIN=48,t=e.currentTarget;
+  try{t.setPointerCapture(e.pointerId);}catch(_){}
+  function move(ev){let d=ev.clientX-startX;d=Math.max(-(wi-MIN),Math.min(d,wn-MIN));const a=Math.round(wi+d),b=Math.round(wn-d);ths[idx].style.width=a+"px";ths[next].style.width=b+"px";state.colWidths[keys[idx]]=a;state.colWidths[keys[next]]=b;}
+  function up(){t.removeEventListener("pointermove",move);t.removeEventListener("pointerup",up);try{t.releasePointerCapture(e.pointerId);}catch(_){}save();}
+  t.addEventListener("pointermove",move);t.addEventListener("pointerup",up);
+}
 function renderVote(){
   if(!state.apps.length){needCSV();return;}
   const vbtns=state.members.map(m=>{const n=state.apps.filter(a=>a.votes.includes(m.id)).length;return `<button class="vbtn ${m.id===state.activeVoter?'on':''}" data-voter="${m.id}">${esc(m.name)}<span class="vcount">${n}</span></button>`;}).join("");
@@ -376,6 +415,7 @@ function renderVote(){
   const tb=app.querySelector("#vbody");
   tb.addEventListener("click",e=>{if(e.target.closest("[data-flag]"))return;const tr=e.target.closest("tr[data-app]");if(tr)addVote(tr.dataset.app,tr);});
   tb.addEventListener("dblclick",e=>{if(e.target.closest("[data-flag]"))return;const tr=e.target.closest("tr[data-app]");if(tr)removeVote(tr.dataset.app,tr);});
+  setupResizableTable("vote");
 }
 
 function distinctValues(col){const s=new Set();state.apps.forEach(a=>s.add(String(a.data[col]==null?"":a.data[col]).trim()||"(blank)"));return [...s].sort((a,b)=>a.localeCompare(b));}
@@ -452,6 +492,7 @@ function renderResults(){
   app.querySelectorAll("[data-flag]").forEach(b=>b.onclick=e=>{e.stopPropagation();toggleMark(b.dataset.flag);});
   const rb=app.querySelector("#rbody");
   rb.addEventListener("click",e=>{if(e.target.closest("[data-codecell]")){state.codeExpanded=!state.codeExpanded;save();render();}});
+  setupResizableTable("results");
 }
 
 function renderCompare(){
@@ -474,6 +515,7 @@ function renderCompare(){
   }
   app.innerHTML=`<div class="voterbar"><div class="hd"><span class="lab">Compare voters</span></div><div class="vbtns">${chips}</div><p class="help">Tap members to select two or more. The table shows the applications every selected member approved in common.</p></div>${bodyHtml}`;
   app.querySelectorAll("[data-cmp]").forEach(b=>b.onclick=()=>{const id=b.dataset.cmp,i=compareSel.indexOf(id);if(i>=0)compareSel.splice(i,1);else compareSel.push(id);render();});
+  setupResizableTable("compare");
 }
 function renderSetup(){
   const meds=state.members.map((m,i)=>`<div class="member-edit"><span class="ix">${i+1}</span><input type="text" data-mname="${m.id}" value="${esc(m.name)}"><button class="btn danger sm" data-mdel="${m.id}">Remove</button></div>`).join("");
