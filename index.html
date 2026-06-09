@@ -112,12 +112,43 @@
   .toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--ink);color:#fff;padding:11px 18px;border-radius:4px;font-size:13px;font-weight:600;opacity:0;transition:.25s;z-index:50;pointer-events:none;max-width:90vw}
   .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
   .toast.warn{background:var(--danger)}
+  .tally-h{flex-wrap:wrap}
+  .ty-title{flex:1;min-width:90px}
+  .ty-btns{display:flex;gap:4px;align-items:center;margin-left:auto}
+  .ty-btn{font-family:var(--sans);font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;border:1px solid var(--rule);background:var(--panel);color:var(--ink);border-radius:2px;padding:3px 6px;cursor:pointer}
+  .ty-btn.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+  .tally-card.mlb .tally-h{background:var(--accent-soft)}
+  .tally-row.pick{cursor:pointer}
+  .tally-row.pick:hover{background:var(--gold-soft)}
+  .tally-row.sel-parent{background:var(--gold-soft)}
+  .tally-row.sel-child{background:var(--accent-soft)}
+  .sel-tag{font-size:10px;font-weight:700;text-transform:uppercase;color:var(--muted);margin-left:6px}
+  .grp-badge{display:inline-block;font-family:var(--mono);font-size:10px;font-weight:700;background:var(--gold-soft);color:var(--ink);border-radius:2px;padding:0 5px;margin-left:6px}
+  .grp-x{border:none;background:none;color:var(--muted);cursor:pointer;font-size:13px;margin-left:5px;padding:0}
+  .grp-x:hover{color:var(--danger)}
+  .combine-bar{display:flex;gap:6px;align-items:center;padding:8px 12px;border-top:1px solid var(--rule);background:var(--paper)}
+  .mini-btn{font-family:var(--sans);font-size:12px;font-weight:700;border:1px solid var(--ink);background:var(--ink);color:#fff;border-radius:2px;padding:5px 10px;cursor:pointer}
+  .mini-btn.ghost{background:var(--panel);color:var(--ink)}
+  .mini-btn:disabled{opacity:.4;cursor:default}
+  .combine-hint{font-size:11px;color:var(--muted);padding:6px 12px}
+  .tagrow{align-items:center}
+  .tagval{flex:1;font-size:12px}
+  .tagbtns{display:flex;gap:4px}
+  .tagbtn{font-family:var(--mono);font-size:12px;font-weight:700;width:26px;height:24px;border:1px solid var(--rule);background:var(--panel);color:var(--ink);border-radius:2px;cursor:pointer}
+  .tagbtn.on{background:var(--accent);border-color:var(--accent);color:#fff}
+  .flagbtn{border:none;background:none;cursor:pointer;font-size:13px;color:var(--rule);padding:0;margin-right:5px;line-height:1;vertical-align:baseline}
+  .flagbtn:hover{color:var(--danger)}
+  .flagbtn.on{color:var(--danger)}
+  td.votes .vn{font-family:var(--mono)}
+  tbody tr.marked{background:#F6D9D4}
+  tbody tr.marked:hover{background:#EFC6BF}
+  tbody tr.marked td:first-child{box-shadow:inset 3px 0 0 var(--danger)}
   @media print{header,nav,.voterbar,.menu,.hiddenbar,.results-tools{display:none}.tablewrap{max-height:none;overflow:visible}}
 </style>
 </head>
 <body>
 <header>
-  <div class="brand"><span class="eyebrow">Scholarship Committee</span><h1>Committee Vote <span class="ver">v5.0</span></h1></div>
+  <div class="brand"><span class="eyebrow">Scholarship Committee</span><h1>Committee Vote <span class="ver">v7.0</span></h1></div>
   <nav>
     <button data-view="vote" class="active">Vote</button>
     <button data-view="results">Results</button>
@@ -141,7 +172,7 @@
 
 <script>
 "use strict";
-const VERSION="5.0";
+const VERSION="7.0";
 const KEY="committeeVote.v2";
 let nextId=1;
 const uid=p=>p+"_"+(nextId++)+"_"+Math.random().toString(36).slice(2,6);
@@ -149,6 +180,8 @@ const uid=p=>p+"_"+(nextId++)+"_"+Math.random().toString(36).slice(2,6);
 let state=blankState();
 let view="vote";
 let editingCol=null;   // column header currently being renamed
+let tallyMode={col:null,mode:null};            // {col, 'combine'|'tag'}
+let combineSel={col:null,parent:null,children:[]};
 
 function blankState(){
   return {
@@ -157,7 +190,8 @@ function blankState(){
     visible:{vote:[],results:[]},
     apps:[],activeVoter:null,
     sort:{col:"__votes",dir:"desc"},
-    topX:10,tallies:[],codeExpanded:false
+    topX:10,tallies:[],codeExpanded:false,
+    groups:{},tags:{},mlbEnabled:{}
   };
 }
 
@@ -177,6 +211,9 @@ function normalize(s){
   if(!Array.isArray(s.tallies))s.tallies=[];
   s.tallies=s.tallies.filter(c=>s.columns.includes(c));
   if(typeof s.codeExpanded!=="boolean")s.codeExpanded=false;
+  if(typeof s.groups!=="object"||!s.groups)s.groups={};
+  if(typeof s.tags!=="object"||!s.tags)s.tags={};
+  if(typeof s.mlbEnabled!=="object"||!s.mlbEnabled)s.mlbEnabled={};
   if(s.codeCol===undefined||(s.codeCol&&!s.columns.includes(s.codeCol)))s.codeCol=null;
   if(!s.codeCol)s.codeCol=detectCodeCol(s.columns,s.idCol);
   if(!Array.isArray(s.members)||!s.members.length)s.members=blankState().members;
@@ -243,14 +280,14 @@ function importCSV(text){
   state.idCol=headers.find(h=>/^id$|applicant\s*id|app\s*id/i.test(h))||null;
   state.codeCol=detectCodeCol(headers,state.idCol);
   state.visible={vote:headers.slice(),results:headers.slice()};
-  state.tallies=[];state.codeExpanded=false;
+  state.tallies=[];state.codeExpanded=false;state.groups={};state.tags={};state.mlbEnabled={};
   state.apps=rows.slice(1).map((r,ix)=>{const data={};headers.forEach((h,j)=>data[h]=r[j]!=null?String(r[j]).trim():"");const id=state.idCol&&data[state.idCol]?("csv_"+data[state.idCol]):uid("a"+ix);return {id,data,votes:[]};});
   state.sort={col:"__votes",dir:"desc"};
   save();toast(state.apps.length+" applications loaded.");view="vote";render();
 }
 
 /* ---------- vote actions (in-place; preserves dblclick) ---------- */
-function refreshRow(tr,a){if(!tr)return;const voted=state.activeVoter&&a.votes.includes(state.activeVoter);tr.classList.toggle("approved",!!voted);const v=tr.querySelector("td.votes");if(v)v.textContent=a.votes.length;const c=tr.querySelector("td.chk");if(c)c.textContent=voted?"\u2713":"";}
+function refreshRow(tr,a){if(!tr)return;const voted=state.activeVoter&&a.votes.includes(state.activeVoter);tr.classList.toggle("approved",!!voted);const v=tr.querySelector("td.votes .vn");if(v)v.textContent=a.votes.length;const c=tr.querySelector("td.chk");if(c)c.textContent=voted?"\u2713":"";}
 function refreshVoterCounts(){document.querySelectorAll("[data-voter]").forEach(b=>{const n=state.apps.filter(a=>a.votes.includes(b.dataset.voter)).length;const c=b.querySelector(".vcount");if(c)c.textContent=n;});}
 function addVote(id,tr){if(!state.activeVoter){toast("Pick who's voting first.",true);return;}const a=state.apps.find(x=>x.id===id);if(!a)return;if(!a.votes.includes(state.activeVoter)){a.votes.push(state.activeVoter);save();refreshRow(tr,a);refreshVoterCounts();}}
 function removeVote(id,tr){const a=state.apps.find(x=>x.id===id);if(!a)return;if(!state.activeVoter){toast("Pick whose vote to remove first.",true);return;}if(!a.votes.includes(state.activeVoter)){toast(activeName()+" hasn't voted for this one.");return;}if(confirm("Remove "+activeName()+"'s vote for:\n\n"+labelOf(a)+"?")){a.votes=a.votes.filter(v=>v!==state.activeVoter);save();refreshRow(tr,a);refreshVoterCounts();}}
@@ -262,6 +299,7 @@ function showCol(v,col){if(!state.visible[v].includes(col))state.visible[v].push
 function setSort(col){if(!col)return;if(state.sort.col===col)state.sort.dir=state.sort.dir==="asc"?"desc":"asc";else state.sort={col,dir:col==="__votes"?"desc":"asc"};save();render();}
 function toggleTally(col){const i=state.tallies.indexOf(col);if(i>=0)state.tallies.splice(i,1);else state.tallies.push(col);save();render();}
 
+function toggleMark(id){const a=state.apps.find(x=>x.id===id);if(a){a.marked=!a.marked;save();render();}}
 /* ---------- rendering ---------- */
 const app=document.getElementById("app");
 function render(){document.querySelectorAll("nav button[data-view]").forEach(b=>b.classList.toggle("active",b.dataset.view===view));if(view==="vote")renderVote();else if(view==="results")renderResults();else renderSetup();}
@@ -290,11 +328,11 @@ function buildHead(v){
 function buildRow(a,v,lead){
   const voted=state.activeVoter&&a.votes.includes(state.activeVoter);
   const leader=v==="results"&&a.votes.length===lead&&lead>0;
-  let tds=`<td class="votes">${a.votes.length}</td>`;
+  let tds=`<td class="votes"><button class="flagbtn ${a.marked?'on':''}" data-flag="${a.id}" title="Flag — sinks to bottom of vote list">\u2691</button><span class="vn">${a.votes.length}</span></td>`;
   if(v==="vote")tds+=`<td class="chk">${voted?"\u2713":""}</td>`;
   viewCols(v).forEach(c=>{const isCode=c===state.codeCol;const tr=isTruncated(a,c,v);tds+=`<td class="${isCode?'codecell':''}" ${v==="results"&&isCode?'data-codecell':''}>${tr?"\u2026":""}${esc(cellVal(a,c,v))}</td>`;});
   if(v==="results")tds+=`<td class="approvers">${a.votes.map(memberName).map(esc).join(", ")||"&mdash;"}</td>`;
-  const cls=(v==="vote"?"clickable ":"")+(voted?"approved ":"")+(leader?"leader":"");
+  const cls=(v==="vote"?"clickable ":"")+(voted?"approved ":"")+(leader?"leader ":"")+(a.marked?"marked":"");
   return `<tr class="${cls.trim()}" data-app="${a.id}">${tds}</tr>`;
 }
 
@@ -320,7 +358,8 @@ function renderVote(){
   if(!state.apps.length){needCSV();return;}
   const vbtns=state.members.map(m=>{const n=state.apps.filter(a=>a.votes.includes(m.id)).length;return `<button class="vbtn ${m.id===state.activeVoter?'on':''}" data-voter="${m.id}">${esc(m.name)}<span class="vcount">${n}</span></button>`;}).join("");
   const who=state.activeVoter?esc(activeName()):`<span class="none">none — pick a member</span>`;
-  const rows=sortedApps().map(a=>buildRow(a,"vote")).join("");
+  const base=sortedApps();
+  const rows=base.filter(a=>!a.marked).concat(base.filter(a=>a.marked)).map(a=>buildRow(a,"vote")).join("");
   app.innerHTML=`
     <div class="voterbar"><div class="hd"><span class="lab">Now voting</span><span class="who">${who}</span></div>
       <div class="vbtns">${vbtns}</div>
@@ -329,21 +368,67 @@ function renderVote(){
     <div class="tablewrap vote"><table><thead><tr>${buildHead("vote")}</tr></thead><tbody id="vbody">${rows}</tbody></table></div>`;
   app.querySelectorAll("[data-voter]").forEach(b=>b.onclick=()=>{state.activeVoter=b.dataset.voter;save();render();});
   wireCommon("vote");
+  app.querySelectorAll("[data-flag]").forEach(b=>b.onclick=e=>{e.stopPropagation();toggleMark(b.dataset.flag);});
   const tb=app.querySelector("#vbody");
-  tb.addEventListener("click",e=>{const tr=e.target.closest("tr[data-app]");if(tr)addVote(tr.dataset.app,tr);});
-  tb.addEventListener("dblclick",e=>{const tr=e.target.closest("tr[data-app]");if(tr)removeVote(tr.dataset.app,tr);});
+  tb.addEventListener("click",e=>{if(e.target.closest("[data-flag]"))return;const tr=e.target.closest("tr[data-app]");if(tr)addVote(tr.dataset.app,tr);});
+  tb.addEventListener("dblclick",e=>{if(e.target.closest("[data-flag]"))return;const tr=e.target.closest("tr[data-app]");if(tr)removeVote(tr.dataset.app,tr);});
 }
 
+function distinctValues(col){const s=new Set();state.apps.forEach(a=>s.add(String(a.data[col]==null?"":a.data[col]).trim()||"(blank)"));return [...s].sort((a,b)=>a.localeCompare(b));}
+function parentMap(col){const m={};(state.groups[col]||[]).forEach(g=>g.children.forEach(c=>m[c]=g.parent));return m;}
+function groupByParent(col,p){return (state.groups[col]||[]).find(g=>g.parent===p);}
+function tallyCounts(col){const top=topXApps(),pm=parentMap(col),counts={};top.forEach(a=>{let v=String(a.data[col]==null?"":a.data[col]).trim()||"(blank)";v=pm[v]||v;counts[v]=(counts[v]||0)+1;});return counts;}
+function mergeGroup(col,parent,picks){
+  if(!parent||!picks.length)return;
+  const groups=state.groups[col]=state.groups[col]||[];
+  groups.forEach(g=>{const i=g.children.indexOf(parent);if(i>=0)g.children.splice(i,1);});
+  let pg=groups.find(g=>g.parent===parent);if(!pg){pg={parent,children:[]};groups.push(pg);}
+  picks.forEach(pick=>{if(pick===parent)return;const g2=groups.find(g=>g.parent===pick);if(g2){pg.children.push(g2.parent);g2.children.forEach(c=>pg.children.push(c));groups.splice(groups.indexOf(g2),1);}else{groups.forEach(g=>{const i=g.children.indexOf(pick);if(i>=0)g.children.splice(i,1);});pg.children.push(pick);}});
+  pg.children=[...new Set(pg.children)].filter(c=>c!==pg.parent);
+  state.groups[col]=groups.filter(g=>g.children.length>0);
+}
+function tallyCard(col){
+  let body;
+  if(tallyMode.col===col&&tallyMode.mode==='combine'){
+    const entries=Object.entries(tallyCounts(col)).sort((x,y)=>y[1]-x[1]||x[0].localeCompare(y[0]));
+    const rows=entries.map(([v,n])=>{const isP=combineSel.parent===v,isC=combineSel.children.includes(v);const tag=isP?'<span class="sel-tag">parent</span>':(isC?'<span class="sel-tag">fold in</span>':'');return `<div class="tally-row pick ${isP?'sel-parent':(isC?'sel-child':'')}" data-pick-col="${esc(col)}" data-pick-val="${esc(v)}"><span>${esc(v)} ${tag}</span><span class="n">${n}</span></div>`;}).join("")||`<div class="tally-row"><span class="muted">No votes yet</span></div>`;
+    const can=combineSel.parent&&combineSel.children.length;
+    body=rows+`<div class="combine-bar"><button class="mini-btn" data-combine-go="${esc(col)}" ${can?'':'disabled'}>Combine${can?' ('+(combineSel.children.length+1)+')':''}</button><button class="mini-btn ghost" data-combine-cancel>Cancel</button></div><div class="combine-hint">First pick names the group; pick more to fold in.</div>`;
+  }else if(tallyMode.col===col&&tallyMode.mode==='tag'){
+    const tm=state.tags[col]||{};
+    const rows=distinctValues(col).map(v=>{const t=tm[v];const btns=['M','L','B'].map(x=>`<button class="tagbtn ${t===x?'on':''}" data-tag-col="${esc(col)}" data-tag-val="${esc(v)}" data-tag="${x}">${x}</button>`).join("");return `<div class="tally-row tagrow"><span class="tagval">${esc(v)}</span><span class="tagbtns">${btns}</span></div>`;}).join("");
+    body=rows+`<div class="combine-bar"><button class="mini-btn" data-tag-done>Done</button></div><div class="combine-hint">Mark each value M, L, or B.</div>`;
+  }else{
+    const entries=Object.entries(tallyCounts(col)).sort((x,y)=>y[1]-x[1]||x[0].localeCompare(y[0]));
+    body=entries.length?entries.map(([v,n])=>{const g=groupByParent(col,v);const badge=g?`<span class="grp-badge">+${g.children.length}</span>`:"";const ung=g?`<button class="grp-x" data-ungroup-col="${esc(col)}" data-ungroup-parent="${esc(v)}" title="Ungroup">&#8856;</button>`:"";return `<div class="tally-row"><span>${esc(v)}${badge}${ung}</span><span class="n">${n}</span></div>`;}).join(""):`<div class="tally-row"><span class="muted">No votes yet</span></div>`;
+  }
+  const mlbOn=state.mlbEnabled[col]?'on':'';
+  return `<div class="tally-card"><div class="tally-h"><span class="ty-title">${esc(dn(col))} <span class="muted">· top ${state.topX}</span></span><span class="ty-btns"><button class="ty-btn" data-combine="${esc(col)}" title="Combine rows">combine</button><button class="ty-btn ${mlbOn}" data-mlb="${esc(col)}" title="Tag M/L/B">M/L/B</button><button class="tally-x" data-untally="${esc(col)}" title="Remove tally">&times;</button></span></div>${body}</div>`;
+}
+function mlbCard(col){
+  const top=topXApps(),tm=state.tags[col]||{},sum={M:0,L:0,B:0,Untagged:0};
+  top.forEach(a=>{const v=String(a.data[col]==null?"":a.data[col]).trim()||"(blank)";const t=tm[v];if(t)sum[t]++;else sum.Untagged++;});
+  let rows=['M','L','B'].map(x=>`<div class="tally-row"><span>${x}</span><span class="n">${sum[x]}</span></div>`).join("");
+  if(sum.Untagged)rows+=`<div class="tally-row"><span class="muted">Untagged</span><span class="n">${sum.Untagged}</span></div>`;
+  return `<div class="tally-card mlb"><div class="tally-h"><span class="ty-title">${esc(dn(col))} <span class="muted">· M/L/B · top ${state.topX}</span></span><span class="ty-btns"><button class="tally-x" data-mlbhide="${esc(col)}" title="Hide M/L/B">&times;</button></span></div>${rows}</div>`;
+}
 function renderTallies(){
   if(!state.tallies.length)return "";
-  const top=topXApps();
-  return state.tallies.map(col=>{
-    const counts={};
-    top.forEach(a=>{const v=String(a.data[col]==null?"":a.data[col]).trim()||"(blank)";counts[v]=(counts[v]||0)+1;});
-    const entries=Object.entries(counts).sort((x,y)=>y[1]-x[1]||x[0].localeCompare(y[0]));
-    const rows=entries.length?entries.map(([v,n])=>`<div class="tally-row"><span>${esc(v)}</span><span class="n">${n}</span></div>`).join(""):`<div class="tally-row"><span class="muted">No votes yet</span></div>`;
-    return `<div class="tally-card"><div class="tally-h">${esc(dn(col))} <span class="muted">· top ${state.topX}</span><button class="tally-x" data-untally="${esc(col)}" title="Remove tally">&times;</button></div>${rows}</div>`;
-  }).join("");
+  const out=[];
+  state.tallies.forEach(col=>{out.push(tallyCard(col));if(state.mlbEnabled[col])out.push(mlbCard(col));});
+  return out.join("");
+}
+function wireTallies(){
+  app.querySelectorAll("[data-untally]").forEach(b=>b.onclick=()=>toggleTally(b.dataset.untally));
+  app.querySelectorAll("[data-combine]").forEach(b=>b.onclick=()=>{tallyMode={col:b.dataset.combine,mode:'combine'};combineSel={col:b.dataset.combine,parent:null,children:[]};render();});
+  app.querySelectorAll("[data-mlb]").forEach(b=>b.onclick=()=>{const col=b.dataset.mlb;if(tallyMode.col===col&&tallyMode.mode==='tag')tallyMode={col:null,mode:null};else{state.mlbEnabled[col]=true;tallyMode={col,mode:'tag'};}save();render();});
+  app.querySelectorAll("[data-pick-col]").forEach(r=>r.onclick=()=>{const col=r.dataset.pickCol,v=r.dataset.pickVal;if(tallyMode.col!==col)return;if(!combineSel.parent)combineSel.parent=v;else if(combineSel.parent===v)combineSel={col,parent:null,children:[]};else{const i=combineSel.children.indexOf(v);if(i>=0)combineSel.children.splice(i,1);else combineSel.children.push(v);}render();});
+  app.querySelectorAll("[data-combine-go]").forEach(b=>b.onclick=()=>{mergeGroup(b.dataset.combineGo,combineSel.parent,combineSel.children);tallyMode={col:null,mode:null};combineSel={col:null,parent:null,children:[]};save();render();});
+  app.querySelectorAll("[data-combine-cancel]").forEach(b=>b.onclick=()=>{tallyMode={col:null,mode:null};combineSel={col:null,parent:null,children:[]};render();});
+  app.querySelectorAll("[data-tag-done]").forEach(b=>b.onclick=()=>{tallyMode={col:null,mode:null};render();});
+  app.querySelectorAll("[data-tag]").forEach(b=>b.onclick=()=>{const col=b.dataset.tagCol,v=b.dataset.tagVal,t=b.dataset.tag;state.tags[col]=state.tags[col]||{};if(state.tags[col][v]===t)delete state.tags[col][v];else state.tags[col][v]=t;save();render();});
+  app.querySelectorAll("[data-ungroup-col]").forEach(b=>b.onclick=()=>{const col=b.dataset.ungroupCol,p=b.dataset.ungroupParent;state.groups[col]=(state.groups[col]||[]).filter(g=>g.parent!==p);save();render();});
+  app.querySelectorAll("[data-mlbhide]").forEach(b=>b.onclick=()=>{state.mlbEnabled[b.dataset.mlbhide]=false;save();render();});
 }
 
 function renderResults(){
@@ -359,7 +444,8 @@ function renderResults(){
     <div class="tablewrap results"><table><thead><tr>${buildHead("results")}</tr></thead><tbody id="rbody">${rows}</tbody></table></div>`;
   wireCommon("results");
   app.querySelector("#topx").onchange=e=>{state.topX=parseInt(e.target.value,10);save();render();};
-  app.querySelectorAll("[data-untally]").forEach(b=>b.onclick=()=>toggleTally(b.dataset.untally));
+  wireTallies();
+  app.querySelectorAll("[data-flag]").forEach(b=>b.onclick=e=>{e.stopPropagation();toggleMark(b.dataset.flag);});
   const rb=app.querySelector("#rbody");
   rb.addEventListener("click",e=>{if(e.target.closest("[data-codecell]")){state.codeExpanded=!state.codeExpanded;save();render();}});
 }
@@ -387,7 +473,7 @@ function renderSetup(){
 }
 
 /* ---------- nav + data menu ---------- */
-document.querySelectorAll("nav button[data-view]").forEach(b=>b.onclick=()=>{editingCol=null;view=b.dataset.view;render();});
+document.querySelectorAll("nav button[data-view]").forEach(b=>b.onclick=()=>{editingCol=null;tallyMode={col:null,mode:null};combineSel={col:null,parent:null,children:[]};view=b.dataset.view;render();});
 const menuPop=document.getElementById("menuPop");
 document.getElementById("menuBtn").onclick=e=>{e.stopPropagation();menuPop.classList.toggle("open");};
 menuPop.onclick=e=>e.stopPropagation();
