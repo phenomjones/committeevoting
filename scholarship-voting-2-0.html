@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Committee Vote</title>
+<style>
+  :root{
+    --ink:#182230;--paper:#FBFAF6;--panel:#FFFFFF;--rule:#E4E0D6;--muted:#6B6256;
+    --accent:#1F5C4D;--accent-soft:#E5EFEA;--gold:#B8862E;--gold-soft:#F6ECD6;--danger:#A23B2E;
+    --mono:ui-monospace,"SF Mono",Menlo,Consolas,"Roboto Mono",monospace;
+    --sans:system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{font-family:var(--sans);background:var(--paper);color:var(--ink);-webkit-font-smoothing:antialiased}
+  header{display:flex;align-items:center;gap:16px;flex-wrap:wrap;padding:14px 20px;border-bottom:2px solid var(--ink);background:var(--paper);position:sticky;top:0;z-index:20}
+  .brand{display:flex;flex-direction:column;line-height:1.05}
+  .brand .eyebrow{font-size:10px;letter-spacing:.22em;text-transform:uppercase;color:var(--muted);font-weight:700}
+  .brand h1{font-size:20px;margin:2px 0 0;font-weight:800;letter-spacing:-.01em}
+  nav{display:flex;gap:4px;margin-left:auto;flex-wrap:wrap;align-items:center}
+  nav button{font-family:var(--sans);font-size:13px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;border:1px solid var(--rule);background:var(--panel);color:var(--muted);padding:9px 14px;border-radius:2px;cursor:pointer}
+  nav button.active{background:var(--ink);color:#fff;border-color:var(--ink)}
+  .menu{position:relative}
+  .menu-pop{position:absolute;right:0;top:calc(100% + 6px);background:var(--panel);border:1px solid var(--rule);border-radius:4px;box-shadow:0 8px 24px rgba(24,34,48,.14);min-width:210px;padding:6px;display:none;z-index:30}
+  .menu-pop.open{display:block}
+  .menu-pop button{display:block;width:100%;text-align:left;border:none;background:none;padding:9px 10px;border-radius:3px;font-size:13px;color:var(--ink);cursor:pointer;text-transform:none;letter-spacing:0;font-weight:600}
+  .menu-pop button:hover{background:var(--accent-soft)}
+  .menu-pop label.col{display:flex;align-items:center;gap:8px;padding:6px 10px;font-size:13px;font-weight:600;cursor:pointer}
+  .menu-pop hr{border:none;border-top:1px solid var(--rule);margin:4px 2px}
+  main{max-width:1280px;margin:0 auto;padding:18px 20px}
+  .section-label{font-size:10px;letter-spacing:.22em;text-transform:uppercase;color:var(--muted);font-weight:700;margin:0 0 10px}
+  /* voter bar */
+  .voterbar{border:1px solid var(--rule);border-radius:4px;background:var(--panel);padding:12px 14px;margin-bottom:16px}
+  .voterbar .hd{display:flex;align-items:baseline;gap:10px;margin-bottom:10px}
+  .voterbar .hd .lab{font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);font-weight:700}
+  .voterbar .hd .who{font-weight:800;font-size:15px}
+  .voterbar .hd .who .none{color:var(--danger)}
+  .vbtns{display:flex;flex-wrap:wrap;gap:6px}
+  .vbtn{font-family:var(--sans);font-size:13px;font-weight:700;border:1px solid var(--rule);background:var(--panel);color:var(--ink);padding:8px 12px;border-radius:3px;cursor:pointer;display:flex;align-items:center;gap:7px}
+  .vbtn.on{background:var(--gold);border-color:var(--gold);color:#fff}
+  .vbtn .vcount{font-family:var(--mono);font-size:11px;background:rgba(24,34,48,.08);border-radius:10px;padding:1px 7px}
+  .vbtn.on .vcount{background:rgba(255,255,255,.25)}
+  /* table */
+  .tablewrap{border:1px solid var(--rule);border-radius:4px;background:var(--panel);overflow-x:auto}
+  table{width:100%;border-collapse:collapse;font-size:13px}
+  th,td{padding:10px 12px;text-align:left;border-bottom:1px solid var(--rule);white-space:nowrap}
+  thead th{background:var(--ink);color:#fff;font-size:10px;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;user-select:none;position:sticky;top:60px}
+  thead th .arrow{opacity:.5;margin-left:5px;font-size:10px}
+  thead th.votes,thead th.chk{text-align:center}
+  tbody tr.clickable{cursor:pointer}
+  tbody tr.clickable:hover{background:var(--accent-soft)}
+  tbody tr.approved{background:var(--accent-soft)}
+  tbody tr.approved:hover{background:#d8e8e1}
+  td.votes{font-family:var(--mono);font-weight:800;text-align:center;font-size:15px}
+  td.chk{text-align:center;font-size:16px;color:var(--accent);width:40px}
+  td.label{font-weight:700}
+  tbody tr.leader td.label::before{content:"\2605  ";color:var(--gold)}
+  td.approvers{color:var(--muted);font-size:12px;white-space:normal;min-width:160px}
+  /* generic */
+  .btn{font-family:var(--sans);font-size:13px;font-weight:700;border:1px solid var(--ink);background:var(--ink);color:#fff;padding:9px 14px;border-radius:3px;cursor:pointer;white-space:nowrap}
+  .btn.ghost{background:var(--panel);color:var(--ink)}
+  .btn.danger{background:var(--panel);color:var(--danger);border-color:var(--danger)}
+  .btn.sm{padding:6px 10px;font-size:12px}
+  input[type=text],select{font-family:var(--sans);font-size:14px;padding:9px 10px;border:1px solid var(--rule);border-radius:3px;background:var(--panel);color:var(--ink)}
+  input:focus,select:focus{outline:2px solid var(--accent);outline-offset:-1px}
+  .card{border:1px solid var(--rule);border-radius:4px;background:var(--panel);padding:18px;margin-bottom:18px}
+  .card h2{font-size:15px;margin:0 0 14px}
+  .member-edit{display:flex;align-items:center;gap:8px;margin-bottom:7px}
+  .member-edit .ix{font-family:var(--mono);color:var(--muted);width:24px;text-align:right;font-size:13px}
+  .member-edit input{flex:1}
+  .field{display:flex;flex-direction:column;gap:5px;margin-bottom:12px}
+  .field label{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);font-weight:700}
+  .empty{padding:54px 18px;text-align:center;color:var(--muted)}
+  .empty p{margin:0 0 16px;font-size:14px}
+  .toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--ink);color:#fff;padding:11px 18px;border-radius:4px;font-size:13px;font-weight:600;opacity:0;transition:.25s;z-index:50;pointer-events:none;max-width:90vw}
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+  .toast.warn{background:var(--danger)}
+  .pillrow{display:flex;flex-wrap:wrap;gap:6px}
+  .pill{font-size:12px;font-weight:700;border:1px solid var(--rule);border-radius:14px;padding:5px 11px;cursor:pointer;background:var(--panel);color:var(--muted)}
+  .pill.on{background:var(--accent);border-color:var(--accent);color:#fff}
+  .help{font-size:12px;color:var(--muted);margin:10px 0 0}
+  @media print{header,nav,.voterbar,.menu{display:none}}
+</style>
+</head>
+<body>
+<header>
+  <div class="brand"><span class="eyebrow">Scholarship Committee</span><h1>Committee Vote</h1></div>
+  <nav>
+    <button data-view="vote" class="active">Vote</button>
+    <button data-view="results">Results</button>
+    <button data-view="setup">Setup</button>
+    <div class="menu">
+      <button id="colBtn">Columns &#9662;</button>
+      <div class="menu-pop" id="colPop"></div>
+    </div>
+    <div class="menu">
+      <button id="menuBtn">Data &#9662;</button>
+      <div class="menu-pop" id="menuPop">
+        <button id="exCsv">Export results (CSV)</button>
+        <button id="exJson">Download backup (JSON)</button>
+        <button id="imJson">Restore from backup</button>
+        <hr>
+        <button id="resetVotes" style="color:var(--danger)">Clear all votes</button>
+        <button id="resetAll" style="color:var(--danger)">Erase everything</button>
+      </div>
+    </div>
+  </nav>
+</header>
+<main id="app"></main>
+<div class="toast" id="toast"></div>
+<input type="file" id="csvInput" accept=".csv,text/csv" style="display:none">
+<input type="file" id="jsonInput" accept="application/json" style="display:none">
+
+<script>
+"use strict";
+
+const KEY="committeeVote.v2";
+let nextId=1;
+const uid=p=>p+"_"+(nextId++)+"_"+Math.random().toString(36).slice(2,6);
+
+let state=blankState();
+let view="vote";
+
+function blankState(){
+  return {
+    members:Array.from({length:10},(_,i)=>({id:uid("m"),name:"Member "+(i+1)})),
+    columns:[], labelCols:[], idCol:null, visibleCols:[],
+    apps:[],                 // {id, data:{}, votes:[memberId,...]}
+    activeVoter:null,
+    sort:{col:"__votes",dir:"desc"}
+  };
+}
+
+/* ---------- persistence ---------- */
+function load(){
+  try{const raw=localStorage.getItem(KEY);if(raw){const d=JSON.parse(raw);if(d&&d.members&&d.apps){state=d;if(!state.sort)state.sort={col:"__votes",dir:"desc"};}}}catch(e){}
+}
+let saveWarned=false;
+function save(){try{localStorage.setItem(KEY,JSON.stringify(state));}catch(e){if(!saveWarned){toast("Autosave unavailable here — use Download backup to keep votes.",true);saveWarned=true;}}}
+
+/* ---------- helpers ---------- */
+function memberName(id){const m=state.members.find(x=>x.id===id);return m?m.name:"?";}
+function activeName(){return state.activeVoter?memberName(state.activeVoter):null;}
+function labelOf(a){
+  const parts=state.labelCols.map(c=>a.data[c]).filter(v=>v!=null&&v!=="");
+  return parts.length?parts.join(" \u00b7 "):"(unlabeled)";
+}
+function esc(s){return String(s==null?"":s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
+function toast(msg,warn){const t=document.getElementById("toast");t.textContent=msg;t.classList.toggle("warn",!!warn);t.classList.add("show");clearTimeout(toast._t);toast._t=setTimeout(()=>t.classList.remove("show"),2800);}
+
+function sortedApps(){
+  const {col,dir}=state.sort,mul=dir==="asc"?1:-1;
+  return state.apps.slice().sort((a,b)=>{
+    let av,bv;
+    if(col==="__votes"){av=a.votes.length;bv=b.votes.length;}
+    else if(col==="__label"){av=labelOf(a);bv=labelOf(b);}
+    else {av=a.data[col]??"";bv=b.data[col]??"";}
+    const an=parseFloat(av),bn=parseFloat(bv);
+    if(typeof av==="number"||((!isNaN(an)&&!isNaN(bn)&&String(av).trim()!==""&&String(bv).trim()!=="")))
+      return (an-bn)*mul || String(av).localeCompare(String(bv))*mul;
+    return String(av).localeCompare(String(bv))*mul;
+  });
+}
+
+/* ---------- CSV parsing ---------- */
+function parseCSV(text){
+  text=text.replace(/^\uFEFF/,"");
+  const rows=[];let row=[],field="",inQ=false,i=0;
+  while(i<text.length){
+    const c=text[i];
+    if(inQ){
+      if(c==='"'){if(text[i+1]==='"'){field+='"';i+=2;continue;}inQ=false;i++;continue;}
+      field+=c;i++;continue;
+    }
+    if(c==='"'){inQ=true;i++;continue;}
+    if(c===','){row.push(field);field="";i++;continue;}
+    if(c==='\r'){i++;continue;}
+    if(c==='\n'){row.push(field);rows.push(row);row=[];field="";i++;continue;}
+    field+=c;i++;
+  }
+  if(field!==""||row.length){row.push(field);rows.push(row);}
+  return rows;
+}
+
+function importCSV(text){
+  const rows=parseCSV(text).filter(r=>r.some(c=>String(c).trim()!==""));
+  if(rows.length<2){toast("That CSV has no data rows.",true);return;}
+  const headers=rows[0].map(h=>String(h).trim());
+  const courseCol=headers.find(h=>/course|major|program|study|degree|field/i.test(h));
+  const schoolCol=headers.find(h=>/school|universit|college|institution/i.test(h));
+  const labelCols=[courseCol,schoolCol].filter(Boolean);
+  state.columns=headers;
+  state.labelCols=labelCols.length?labelCols:[headers[0]];
+  state.idCol=headers.find(h=>/^id$|applicant\s*id|app\s*id/i.test(h))||null;
+  state.visibleCols=state.labelCols.slice();
+  state.apps=rows.slice(1).map((r,ix)=>{
+    const data={};headers.forEach((h,j)=>data[h]=r[j]!=null?String(r[j]).trim():"");
+    const id=state.idCol&&data[state.idCol]?("csv_"+data[state.idCol]):uid("a"+ix);
+    return {id,data,votes:[]};
+  });
+  state.sort={col:"__votes",dir:"desc"};
+  save();
+  toast(state.apps.length+" applications loaded.");
+  view="vote";render();
+}
+
+/* ---------- vote actions (in-place, preserves dblclick) ---------- */
+function refreshRow(tr,a){
+  if(!tr)return;
+  const voted=state.activeVoter&&a.votes.includes(state.activeVoter);
+  tr.classList.toggle("approved",!!voted);
+  const v=tr.querySelector("td.votes");if(v)v.textContent=a.votes.length;
+  const c=tr.querySelector("td.chk");if(c)c.textContent=voted?"\u2713":"";
+}
+function refreshVoterCounts(){
+  document.querySelectorAll("[data-voter]").forEach(b=>{
+    const id=b.dataset.voter,n=state.apps.filter(a=>a.votes.includes(id)).length;
+    const c=b.querySelector(".vcount");if(c)c.textContent=n;
+  });
+}
+function addVote(appId,tr){
+  if(!state.activeVoter){toast("Pick who's voting first.",true);return;}
+  const a=state.apps.find(x=>x.id===appId);if(!a)return;
+  if(!a.votes.includes(state.activeVoter)){a.votes.push(state.activeVoter);save();refreshRow(tr,a);refreshVoterCounts();}
+}
+function removeVote(appId,tr){
+  const a=state.apps.find(x=>x.id===appId);if(!a)return;
+  if(!state.activeVoter){toast("Pick whose vote to remove first.",true);return;}
+  if(!a.votes.includes(state.activeVoter)){toast(activeName()+" hasn't voted for this one.");return;}
+  if(confirm("Remove "+activeName()+"'s vote for:\n\n"+labelOf(a)+"?")){
+    a.votes=a.votes.filter(v=>v!==state.activeVoter);save();refreshRow(tr,a);refreshVoterCounts();
+  }
+}
+
+/* ---------- rendering ---------- */
+const app=document.getElementById("app");
+function render(){
+  document.querySelectorAll("nav button[data-view]").forEach(b=>b.classList.toggle("active",b.dataset.view===view));
+  rebuildColMenu();
+  if(view==="vote")renderVote();
+  else if(view==="results")renderResults();
+  else renderSetup();
+}
+
+function needCSV(){
+  app.innerHTML=`<div class="empty"><p>No applications loaded yet.</p>
+    <button class="btn" id="goImport">Import a CSV</button></div>`;
+  app.querySelector("#goImport").onclick=()=>document.getElementById("csvInput").click();
+}
+
+function headerCells(forResults){
+  const cells=[`<th class="label" data-sort="__label">Application${sortArrow("__label")}</th>`];
+  state.visibleCols.forEach(c=>{ if(state.labelCols.includes(c))return; cells.push(`<th data-sort="${esc(c)}">${esc(c)}${sortArrow(c)}</th>`); });
+  if(!forResults)cells.push(`<th class="chk">Voted</th>`);
+  cells.push(`<th class="votes" data-sort="__votes">Votes${sortArrow("__votes")}</th>`);
+  if(forResults)cells.push(`<th>Approved by</th>`);
+  return cells.join("");
+}
+function sortArrow(col){return state.sort.col===col?`<span class="arrow">${state.sort.dir==="asc"?"\u25B2":"\u25BC"}</span>`:"";}
+
+function bodyRow(a,forResults,leaderVotes){
+  const voted=state.activeVoter&&a.votes.includes(state.activeVoter);
+  const leader=forResults&&a.votes.length===leaderVotes&&leaderVotes>0;
+  let tds=`<td class="label">${esc(labelOf(a))}</td>`;
+  state.visibleCols.forEach(c=>{ if(state.labelCols.includes(c))return; tds+=`<td>${esc(a.data[c])}</td>`; });
+  if(!forResults)tds+=`<td class="chk">${voted?"\u2713":""}</td>`;
+  tds+=`<td class="votes">${a.votes.length}</td>`;
+  if(forResults)tds+=`<td class="approvers">${a.votes.map(memberName).map(esc).join(", ")||"&mdash;"}</td>`;
+  const cls=(forResults?"":"clickable ")+(voted?"approved ":"")+(leader?"leader":"");
+  return `<tr class="${cls.trim()}" data-app="${a.id}">${tds}</tr>`;
+}
+
+function renderVote(){
+  if(state.apps.length===0){needCSV();return;}
+  const vbtns=state.members.map(m=>{
+    const n=state.apps.filter(a=>a.votes.includes(m.id)).length;
+    return `<button class="vbtn ${m.id===state.activeVoter?'on':''}" data-voter="${m.id}">${esc(m.name)}<span class="vcount">${n}</span></button>`;
+  }).join("");
+  const who=state.activeVoter?esc(activeName()):`<span class="none">none — pick a member</span>`;
+  const rows=sortedApps().map(a=>bodyRow(a,false)).join("");
+  app.innerHTML=`
+    <div class="voterbar">
+      <div class="hd"><span class="lab">Now voting</span><span class="who">${who}</span></div>
+      <div class="vbtns">${vbtns}</div>
+      <p class="help">Pick the member calling out votes, then <b>single-click</b> each application they back. <b>Double-click</b> a row to remove that member's vote. Rows don't re-sort while you click — sort by tapping a column header.</p>
+    </div>
+    <div class="tablewrap"><table>
+      <thead><tr>${headerCells(false)}</tr></thead>
+      <tbody id="vbody">${rows}</tbody>
+    </table></div>`;
+  // voter select
+  app.querySelectorAll("[data-voter]").forEach(b=>b.onclick=()=>{state.activeVoter=b.dataset.voter;save();render();});
+  // sort
+  app.querySelectorAll("thead th[data-sort]").forEach(th=>th.onclick=()=>setSort(th.dataset.sort));
+  // delegated click / dblclick on tbody (stable nodes -> dblclick fires)
+  const tb=app.querySelector("#vbody");
+  tb.addEventListener("click",e=>{const tr=e.target.closest("tr[data-app]");if(tr)addVote(tr.dataset.app,tr);});
+  tb.addEventListener("dblclick",e=>{const tr=e.target.closest("tr[data-app]");if(tr)removeVote(tr.dataset.app,tr);});
+}
+
+function setSort(col){
+  if(state.sort.col===col)state.sort.dir=state.sort.dir==="asc"?"desc":"asc";
+  else state.sort={col,dir:col==="__votes"?"desc":"asc"};
+  save();render();
+}
+
+function renderResults(){
+  if(state.apps.length===0){needCSV();return;}
+  const apps=sortedApps();
+  const lead=Math.max(0,...state.apps.map(a=>a.votes.length));
+  const rows=apps.map(a=>bodyRow(a,true,lead)).join("");
+  app.innerHTML=`<p class="section-label">${state.apps.length} applications &middot; ${state.members.length} members</p>
+    <div class="tablewrap"><table>
+      <thead><tr>${headerCells(true)}</tr></thead><tbody>${rows}</tbody></table></div>`;
+  app.querySelectorAll("thead th[data-sort]").forEach(th=>th.onclick=()=>setSort(th.dataset.sort));
+}
+
+function renderSetup(){
+  const meds=state.members.map((m,i)=>`<div class="member-edit">
+    <span class="ix">${i+1}</span><input type="text" data-mname="${m.id}" value="${esc(m.name)}">
+    <button class="btn danger sm" data-mdel="${m.id}">Remove</button></div>`).join("");
+  const colOpts=state.columns.map(c=>`<option value="${esc(c)}">${esc(c)}</option>`).join("");
+  const labelPills=state.columns.length?state.columns.map(c=>`<button class="pill ${state.labelCols.includes(c)?'on':''}" data-label="${esc(c)}">${esc(c)}</button>`).join(""):`<span class="help">Load a CSV first.</span>`;
+  app.innerHTML=`
+    <div class="card">
+      <h2>Applications (CSV)</h2>
+      ${state.apps.length?`<p class="help" style="margin-top:0">${state.apps.length} applications loaded, columns: ${state.columns.map(esc).join(", ")}.</p>`:`<p class="help" style="margin-top:0">No CSV loaded yet. The first row must be column headers.</p>`}
+      <button class="btn" id="importBtn">${state.apps.length?"Re-import / replace CSV":"Import CSV"}</button>
+    </div>
+    <div class="card">
+      <h2>Row label</h2>
+      <p class="help" style="margin-top:0">Pick the column(s) that identify each application (e.g. Course of Study + School).</p>
+      <div class="pillrow" style="margin-top:10px">${labelPills}</div>
+    </div>
+    <div class="card">
+      <h2>Committee members</h2>${meds}
+      <button class="btn ghost sm" id="addMember" style="margin-top:8px">Add member</button>
+      <span class="help" style="margin-left:8px">${state.members.length} members</span>
+    </div>`;
+  app.querySelector("#importBtn").onclick=()=>{
+    if(state.apps.some(a=>a.votes.length)){if(!confirm("Re-importing replaces all applications and clears every vote. Continue?"))return;}
+    document.getElementById("csvInput").click();
+  };
+  app.querySelectorAll("[data-label]").forEach(b=>b.onclick=()=>{
+    const c=b.dataset.label,i=state.labelCols.indexOf(c);
+    if(i>=0){if(state.labelCols.length>1)state.labelCols.splice(i,1);else{toast("Keep at least one label column.");return;}}
+    else state.labelCols.push(c);
+    state.labelCols.forEach(lc=>{if(!state.visibleCols.includes(lc))state.visibleCols.push(lc);});
+    save();render();
+  });
+  app.querySelectorAll("[data-mname]").forEach(inp=>inp.onchange=()=>{const m=state.members.find(x=>x.id===inp.dataset.mname);if(m){m.name=inp.value.trim()||m.name;save();}});
+  app.querySelectorAll("[data-mdel]").forEach(b=>b.onclick=()=>{
+    if(state.members.length<=1){toast("Keep at least one member.");return;}
+    if(confirm("Remove this member? Their recorded votes will be discarded.")){
+      const id=b.dataset.mdel;state.members=state.members.filter(m=>m.id!==id);
+      state.apps.forEach(a=>a.votes=a.votes.filter(v=>v!==id));
+      if(state.activeVoter===id)state.activeVoter=null;save();render();
+    }
+  });
+  app.querySelector("#addMember").onclick=()=>{state.members.push({id:uid("m"),name:"Member "+(state.members.length+1)});save();render();};
+}
+
+/* ---------- columns menu ---------- */
+function rebuildColMenu(){
+  const pop=document.getElementById("colPop");
+  if(!state.columns.length){pop.innerHTML=`<div style="padding:8px 10px;font-size:12px;color:var(--muted)">Load a CSV to choose columns.</div>`;return;}
+  pop.innerHTML=state.columns.map(c=>{
+    const locked=state.labelCols.includes(c);
+    return `<label class="col"><input type="checkbox" data-col="${esc(c)}" ${state.visibleCols.includes(c)?"checked":""} ${locked?"disabled":""}> ${esc(c)}${locked?" (label)":""}</label>`;
+  }).join("");
+  pop.querySelectorAll("[data-col]").forEach(cb=>cb.onchange=()=>{
+    const c=cb.dataset.col;
+    if(cb.checked){if(!state.visibleCols.includes(c))state.visibleCols.push(c);}
+    else state.visibleCols=state.visibleCols.filter(x=>x!==c);
+    save();render();
+  });
+}
+
+/* ---------- nav + menus ---------- */
+document.querySelectorAll("nav button[data-view]").forEach(b=>b.onclick=()=>{view=b.dataset.view;render();});
+function wireMenu(btnId,popId){
+  const pop=document.getElementById(popId);
+  document.getElementById(btnId).onclick=e=>{e.stopPropagation();document.querySelectorAll(".menu-pop").forEach(p=>{if(p!==pop)p.classList.remove("open");});pop.classList.toggle("open");};
+  pop.onclick=e=>e.stopPropagation();
+}
+wireMenu("menuBtn","menuPop");wireMenu("colBtn","colPop");
+document.addEventListener("click",()=>document.querySelectorAll(".menu-pop").forEach(p=>p.classList.remove("open")));
+
+/* ---------- import / export ---------- */
+const csvInput=document.getElementById("csvInput"),jsonInput=document.getElementById("jsonInput");
+csvInput.onchange=()=>{const f=csvInput.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{importCSV(r.result);csvInput.value="";};r.readAsText(f);};
+function download(name,text,type){const b=new Blob([text],{type}),u=URL.createObjectURL(b),a=document.createElement("a");a.href=u;a.download=name;a.click();URL.revokeObjectURL(u);}
+function stamp(){return new Date().toISOString().slice(0,10);}
+document.getElementById("exCsv").onclick=()=>{
+  if(!state.apps.length){toast("Nothing to export yet.",true);return;}
+  const q=s=>`"${String(s==null?"":s).replace(/"/g,'""')}"`;
+  const header=["Rank","Application",...state.columns,"Votes","Approved by"].map(q).join(",");
+  const apps=state.apps.slice().sort((a,b)=>b.votes.length-a.votes.length||labelOf(a).localeCompare(labelOf(b)));
+  const lines=apps.map((a,i)=>[i+1,labelOf(a),...state.columns.map(c=>a.data[c]??""),a.votes.length,a.votes.map(memberName).join("; ")].map(q).join(","));
+  download(`committee-results-${stamp()}.csv`,[header,...lines].join("\r\n"),"text/csv");
+  document.getElementById("menuPop").classList.remove("open");
+};
+document.getElementById("exJson").onclick=()=>{download(`committee-vote-backup-${stamp()}.json`,JSON.stringify(state,null,2),"application/json");document.getElementById("menuPop").classList.remove("open");};
+document.getElementById("imJson").onclick=()=>{document.getElementById("menuPop").classList.remove("open");jsonInput.click();};
+jsonInput.onchange=()=>{const f=jsonInput.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{try{const d=JSON.parse(r.result);if(!d.members||!d.apps)throw 0;state=d;if(!state.sort)state.sort={col:"__votes",dir:"desc"};save();render();toast("Backup restored.");}catch(e){toast("That file isn't a valid backup.",true);}jsonInput.value="";};r.readAsText(f);};
+document.getElementById("resetVotes").onclick=()=>{if(confirm("Clear every vote? Applications and members stay.")){state.apps.forEach(a=>a.votes=[]);save();render();toast("All votes cleared.");}document.getElementById("menuPop").classList.remove("open");};
+document.getElementById("resetAll").onclick=()=>{if(confirm("Erase everything — applications, members, and votes? Cannot be undone.")){state=blankState();save();render();toast("Reset to a blank slate.");}document.getElementById("menuPop").classList.remove("open");};
+
+/* ---------- go ---------- */
+load();render();
+</script>
+</body>
+</html>
